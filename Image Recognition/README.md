@@ -1,3 +1,9 @@
+# This is a guide for setting up the environment to work with TensorFlow in Windows using WSL
+
+### If you don't have an Nvidia GPU, don't bother doing all this
+
+#### There are some blocks of commands that you can run at the same time, but it's better if you run them all one by one as some of them require being modified and some others prompt questions
+
 1. Download Ubuntu 20.04LTS version from Microsoft Store
 
 1. Download the latest drivers for your GPU from [here](https://www.nvidia.com/en-us/drivers/) or from the GeForce application
@@ -76,6 +82,12 @@
     (if it didn't work: "sudo apt install curl" and try again)
 
         bash Miniconda3-latest-Linux-x86_64.sh
+
+    When prompted, press ENTER and then write YES
+
+        sudo reboot
+
+    Wait until it reboots (maybe you need to restart VS Code)
 
         conda create --name tf python=3.9
 
