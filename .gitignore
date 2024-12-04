@@ -1,0 +1,4 @@
+Tutorials/
+Image\ Recognition/Datasets/*
+!Image\ Recognition/Datasets/REAMDE.md
+
