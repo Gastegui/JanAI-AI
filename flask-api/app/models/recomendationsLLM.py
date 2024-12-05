@@ -1,3 +1,4 @@
+#need a change
 import mysql.connector
 from langchain_ollama import OllamaLLM
 from langchain.chains import LLMChain
@@ -82,7 +83,7 @@ def getWeightData(user_id):
     cursor.close()
     return result
 
-def calculate_calories(user_id):
+def calculateCalories(user_id):
     userData = getUserData(user_id)
     weightGoals = getWeightData(user_id)
     if not userData:
