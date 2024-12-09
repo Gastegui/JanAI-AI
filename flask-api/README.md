@@ -7,6 +7,7 @@ This README provides the steps to set up and run the API locally, as well as int
 Before starting, ensure you have the following installed:
 - Python 3.x
 - pip (Python's package installer)
+- [Ollama instructions](OLLAMA.md)
 
 ## Setup Instructions
 
