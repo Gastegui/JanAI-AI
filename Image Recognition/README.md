@@ -108,7 +108,7 @@
 
     pip install --upgrade pip
 
-    python3 -m install tensorflow[and-cuda]
+    python3 -m pip install tensorflow[and-cuda]
 
     pip install TensorRT
     ```
