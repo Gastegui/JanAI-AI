@@ -10,6 +10,8 @@ from werkzeug.utils import secure_filename
 from .exceptions.exceptions import (UnsupportedContentTypeError,
                                     UserNotFoundError)
 from .models import calorieLLM
+from .schemas.schemas_llm import RequestLlm, ResponseLlm
+import json
 
 # Load ENV file
 load_dotenv()
@@ -97,13 +99,12 @@ def process_intake_prediction():
     """
     try:
         request_json = validate_content_type(request)
-        if not request_json or 'userID' not in request_json:
-            raise BadRequest('Missing required field: userID')
+        llm_input = RequestLlm(userID = request_json['userID'])
 
         intake_prediction = calorieLLM.calculate_calories(
-            request_json['userID']
+            llm_input.userID
         )
-        return jsonify({'calorie_prediction': intake_prediction})
+        return ResponseLlm(calorie_prediction = intake_prediction).model_dump_json()
     except UserNotFoundError as e:
         raise e
     except Exception as e:
