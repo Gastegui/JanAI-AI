@@ -4,17 +4,17 @@
 
 #### There are some blocks of commands that you can run at the same time, but it's better if you run them all one by one as some of them require being modified and some others prompt questions
 
-1. Download Ubuntu 20.04LTS version from Microsoft Store
+1. Download Ubuntu 20.04.x LTS version from Microsoft Store
 
 1. Download the latest drivers for your GPU from [here](https://www.nvidia.com/en-us/drivers/) or from the GeForce application
 
-1. Search Ubuntu in the Windows search bar and finish the installation
+1. Search Ubuntu in the Windows search bar and finish the installation (you can close it after finishing)
 
-1. Download the WSL extension in VS Code
+1. In Windows, download the WSL extension in VS Code
 
 1. Open the Ubuntu machine from VS Code using the extension
 
-1. Download all the recomended extensions (at least should ask for Python and Jupyter)
+1. Download all the recomended extensions (should ask at least for Python and Jupyter)
 
 1. Run the next commands in the terminal to create the Python enviroment and instaling PyTorch (make sure you are running the commands in WSL)
     ```
@@ -31,7 +31,7 @@
     bash Miniconda3-latest-Linux-x86_64.sh
     ```
 
-    When prompted, press enter then scroll all the way down and input 'yes', then press enter without writing anything, and the input 'yes' again
+    When prompted, press enter then scroll all the way down and input 'yes', then press enter without writing anything, and then input 'yes' again
     ```
     sudo reboot
     ```
@@ -67,16 +67,14 @@
         ```
         conda install pytorch torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia
         ```
-1. PyTorch should be installed. Run the next commands to check (don't worry about the warnings):
+1. PyTorch should be installed. Run the next command to check:
     ```
-    python3 -c "import tensorflow as tf; print(tf.reduce_sum(tf.random.normal([1000, 1000])))"
+    python -c "import torch; print(torch.cuda.is_available())"
     ```
-    Should have said something like: tf.Tensor(1025.14, shape=(), dtype=float32)
-    ```
-    python3 -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
-    ```
-    Should have said something like: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')]
-
-1. At VS Code, when selecting the kernel for the Python Notebook, select "tf (Python 3.9.x)
+    It should: 
+    1. Print "True" if CUDA is available
+    1. Print "False" if CUDA isn't available (but PyTorch is intalled)
+    1. Throw an error if PyTorch isnt's installed (or if you aren't in the pt environment)
+1. At VS Code, when selecting the kernel for the Python Notebook, select "pt (Python 3.9.x)"
 
 1. Enjoy!
