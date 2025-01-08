@@ -315,16 +315,14 @@ class ImagePredictor:
 
             # Create a list of (class_name, probability) tuples
             class_probabilities = [
-                (class_name, prob)
+                (class_name, float(prob))
                 for class_name, prob in zip(self.class_names, all_probs)
             ]
             # Sort by probability in descending order
             class_probabilities.sort(key=lambda x: x[1], reverse=True)
-
-        print('FINAL')
         return {
             'predicted_class': predicted_class_name,
-            'confidence': confidence,
+            'confidence': float(confidence),
             'all_predictions': class_probabilities,
         }
 
