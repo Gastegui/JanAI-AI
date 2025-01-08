@@ -1,17 +1,17 @@
 """Main model serving API module"""
 import os
+import random
+from base64 import decodebytes
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
-from werkzeug.datastructures import FileStorage
 from werkzeug.exceptions import BadRequest, InternalServerError
-from werkzeug.utils import secure_filename
 
 from .exceptions.exceptions import (UnsupportedContentTypeError,
                                     UserNotFoundError)
 from .models import calorieLLM
+from .models.recognitionDLM import ImagePredictor
 from .schemas.schemas_llm import RequestLlm, ResponseLlm
-import json
 
 # Load ENV file
 load_dotenv()
@@ -99,12 +99,12 @@ def process_intake_prediction():
     """
     try:
         request_json = validate_content_type(request)
-        llm_input = RequestLlm(userID = request_json['userID'])
+        llm_input = RequestLlm(userID=request_json['userID'])
 
-        intake_prediction = calorieLLM.calculate_calories(
-            llm_input.userID
-        )
-        return ResponseLlm(calorie_prediction = intake_prediction).model_dump_json()
+        intake_prediction = calorieLLM.calculate_calories(llm_input.userID)
+        return ResponseLlm(
+            calorie_prediction=intake_prediction
+        ).model_dump_json()
     except UserNotFoundError as e:
         raise e
     except Exception as e:
@@ -113,32 +113,46 @@ def process_intake_prediction():
         ) from e
 
 
-# @app.route('/image_prediction', methods=['POST'])
-# def process_image_prediction():
-#     """
-#     Method to upload an image for prediction.
-#     Returns a generic response for now.
-#     """
-#     try:
-#         if 'img' not in request.files:
-#             raise BadRequest('No image file found in the request')
+@app.route('/image_prediction', methods=['POST'])
+def process_image_prediction():
+    """
+    Method to upload an image for prediction.
+    Returns a generic response for now.
+    """
+    file_path = ''
+    try:
+        if not request.data:
+            raise BadRequest('No image file found in the request')
 
-#         file = request.files['img']
-#         if file.filename == '':
-#             raise BadRequest('No selected file')
+        filename = ''
+        filename += str(random.randrange(0, 100))
+        filename += '.jpg'
 
-#         if not allowed_file(file.filename):
-#             raise BadRequest('File type not allowed')
+        while os.path.exists(
+            '/'.join([app.config['UPLOAD_FOLDER'], filename])
+        ):
+            filename = ''
+            filename += str(random.randrange(0, 100))
+            filename += '.jpg'
 
-#         # Secure the filename and save the file temporarily
-#         filename = secure_filename(file.filename)
-#         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-#         file.save(file_path)
+        # Ensure the directory exists
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-#         # Mock prediction result (replace with actual model logic later)
-#         image_model = model.ImageModel()
-#         mock_prediction = image_model.predict(file)
+        with open(
+            '/'.join([app.config['UPLOAD_FOLDER'], filename]), 'wb'
+        ) as f:
+            f.write(decodebytes(request.data))
 
-#         return jsonify(mock_prediction.model_dump()), 200
-#     except Exception as e:
-#         raise Exception(f"Error processing image prediction: {str(e)}")
+        # Secure the filename and save the file temporarily
+        file_path = '/'.join([app.config['UPLOAD_FOLDER'], filename])
+
+        # Mock prediction result (replace with actual model logic later)
+        image_model = ImagePredictor()
+        prediction = image_model.predict_image(file_path)
+
+        return jsonify(prediction, 200)
+
+    finally:
+        # Ensure the file is removed, even if an exception occurs
+        if os.path.exists(file_path):
+            os.remove(file_path)
