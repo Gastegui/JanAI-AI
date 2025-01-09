@@ -1,10 +1,11 @@
 """
 Module file dedicated to storing model classes
 """
+import os
+
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
-import os
 from PIL import Image
 
 IMG_SIZE = 224

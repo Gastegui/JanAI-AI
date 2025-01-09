@@ -23,10 +23,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Install pytorch
-        run: |
-          pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu124
-
       - name: Run Tests and Generate Coverage Report
         run: |
           pytest --cov=./ --cov-report=xml

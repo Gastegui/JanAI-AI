@@ -1,5 +1,4 @@
 import os
-from pprint import pprint
 
 import mysql.connector
 from dotenv import load_dotenv
@@ -70,7 +69,8 @@ prompt = PromptTemplate(
         'activityLevel',
         'objective',
         'bmrMifflin',
-        'bmrHarrisBenedict' 'bmrKatchMcArdle',
+        'bmrHarrisBenedict',
+        'bmrKatchMcArdle',
         'tdeeMifflin',
         'tdeeHarrisBenedict',
         'tdeeKatchMcArdle',

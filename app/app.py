@@ -39,10 +39,6 @@ def validate_content_type(validate_request):
     content_type = validate_request.headers.get('Content-Type')
     if content_type == 'application/json':
         return validate_request.json
-    elif content_type == 'application/xml':
-        raise UnsupportedContentTypeError(
-            f'Content-Type {content_type} is not supported!'
-        )
     else:
         raise UnsupportedContentTypeError(
             f'Content-Type {content_type} is not supported!'
