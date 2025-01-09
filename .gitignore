@@ -1,4 +1,6 @@
 # Pertaining to python API project
 __pycache__
-flask-api/env
-flask-api/.env
+training
+env
+.env
+upload/*
