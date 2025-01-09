@@ -43,5 +43,5 @@ jobs:
             -Dsonar.login=$SONAR_TOKEN \
             -Dsonar.qualitygate.wait=true \
             -Dsonar.language=py \
-            -Dsonar.python.coverage.reportPaths=coverage.xml
+            -Dsonar.python.coverage.reportPaths=coverage.xml \
             -X
