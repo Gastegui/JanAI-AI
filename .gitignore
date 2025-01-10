@@ -4,3 +4,5 @@ training
 env
 .env
 upload/*
+.vscode/
+.pytest_cache

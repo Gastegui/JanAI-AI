@@ -1,6 +1,8 @@
 """
 Module for storing necessary models for LLM communication
 """
+from typing import List
+
 from pydantic import BaseModel
 
 
@@ -18,3 +20,17 @@ class ResponseLlm(BaseModel):
     """
 
     calorie_prediction: float
+
+
+class RequestDlm(BaseModel):
+    """Input data expectation for food recognition model input"""
+
+    input: str
+
+
+class ResponseDlm(BaseModel):
+    """Input data expectation for recommendation model input"""
+
+    predicted_class: str
+    confidence: float
+    all_predictions: List[tuple]

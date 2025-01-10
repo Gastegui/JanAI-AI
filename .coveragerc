@@ -1,0 +1,13 @@
+[run]
+omit =
+    app/models/*
+    */test_*.py
+    */__init__.py
+
+[report]
+exclude_lines =
+    # Ignore code that is untestable or deliberately excluded
+    with open('/'.join([app.config['UPLOAD_FOLDER'], filename]), 'wb') as f:
+    f.write(decodebytes(request.data))
+    if os.path.exists(file_path)
+    os.remove(file_path)

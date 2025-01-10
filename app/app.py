@@ -11,7 +11,7 @@ from .exceptions.exceptions import (UnsupportedContentTypeError,
                                     UserNotFoundError)
 from .models import calorieLLM
 from .models.recognitionDLM import ImagePredictor
-from .schemas.schemas_llm import RequestLlm, ResponseLlm
+from .schemas.schemas import RequestLlm, ResponseDlm, ResponseLlm
 
 # Load ENV file
 load_dotenv()
@@ -101,7 +101,7 @@ def process_intake_prediction():
         return ResponseLlm(
             calorie_prediction=intake_prediction
         ).model_dump_json()
-    except UserNotFoundError as e:
+    except (UserNotFoundError, UnsupportedContentTypeError) as e:
         raise e
     except Exception as e:
         raise InternalServerError(
@@ -146,7 +146,13 @@ def process_image_prediction():
         image_model = ImagePredictor()
         prediction = image_model.predict_image(file_path)
 
-        return jsonify(prediction, 200)
+        image_output = ResponseDlm(
+            predicted_class=prediction.get('predicted_class'),
+            confidence=prediction.get('confidence'),
+            all_predictions=prediction.get('all_predictions'),
+        )
+
+        return image_output.model_dump_json(), 200
 
     finally:
         # Ensure the file is removed, even if an exception occurs
