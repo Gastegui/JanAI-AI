@@ -29,13 +29,13 @@ jobs:
 
       - name: Set correct permissions for upload folder
         run: |
-          sudo mkdir -p /mocked/uploads
-          sudo chmod 777 /mocked/uploads
+          sudo mkdir -p ${{ runner.temp }}/uploads
+          sudo chmod 777 ${{ runner.temp }}/uploads
 
       - name: Run Tests and Generate Coverage Report
         env:
-          APPLICATION_ROOT: /mocked/root
-          UPLOAD_FOLDER: /mocked/uploads
+          APPLICATION_ROOT: ${{ runner.temp}}/root
+          UPLOAD_FOLDER: ${{ runner.temp }}/uploads
           MAX_CONTENT_LENGTH: 167242
           ALLOWED_EXTENSIONS: png,jpg,jpeg
         run: |

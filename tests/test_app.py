@@ -79,8 +79,9 @@ def test_process_intake_prediction_user_not_found(client):
 
 
 # Mock for the ImagePredictor class
+@patch('os.makedirs')
 @patch('app.app.ImagePredictor')
-def test_process_image_prediction_success(mock_image_predictor, client):
+def test_process_image_prediction_success(mock_image_predictor, mock_makedirs, client):
     # Mock the prediction response
     mock_image_predictor.return_value.predict_image.return_value = {
         'predicted_class': 'tortilla',
@@ -91,6 +92,8 @@ def test_process_image_prediction_success(mock_image_predictor, client):
             ('waffles', 0.02),
         ],
     }
+
+    mock_makedirs.return_value = {}
 
     # Create a fake image file (binary content)
     fake_image = io.BytesIO()
