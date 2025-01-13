@@ -25,7 +25,12 @@ jobs:
 
       - name: Install pytorch
         run: |
-          pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu124 
+          pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu124
+
+      - name: Set correct permissions for upload folder
+        run: |
+          sudo mkdir -p /mocked/uploads
+          sudo chmod 777 /mocked/uploads
 
       - name: Run Tests and Generate Coverage Report
         env:
