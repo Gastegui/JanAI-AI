@@ -27,7 +27,7 @@ app.config['DEBUG'] = os.getenv('FLASK_DEBUG') == 'True'
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER')
-app.config['MAX_CONTENT_LENGTH'] = int(os.getenv('MAX_CONTENT_LENGTH')) or 16777216
+app.config['MAX_CONTENT_LENGTH'] = int(os.getenv('MAX_CONTENT_LENGTH'))
 app.config['ALLOWED_EXTENSIONS'] = set(
     os.getenv('ALLOWED_EXTENSIONS').split(',')
 )

@@ -18,6 +18,7 @@ def client():
     with patch('mysql.connector.connect'):
         app.config['TESTING'] = True
         app.config['UPLOAD_FOLDER'] = '/upload'
+        app.config['MAX_CONTENT_LENGTH'] = 16777216
         with app.test_client() as client:
             yield client
 
