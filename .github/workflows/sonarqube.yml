@@ -32,6 +32,7 @@ jobs:
           APPLICATION_ROOT: /mocked/root
           UPLOAD_FOLDER: /mocked/uploads
           MAX_CONTENT_LENGTH: 167242
+          ALLOWED_EXTENSIONS: png,jpg,jpeg
         run: |
           pytest --cov=app --cov-config=.coveragerc --cov-report=xml
 
