@@ -28,6 +28,10 @@ jobs:
           pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu124 
 
       - name: Run Tests and Generate Coverage Report
+        env:
+          APPLICATION_ROOT: /mocked/root
+          UPLOAD_FOLDER: /mocked/uploads
+          MAX_CONTENT_LENGTH: 167242
         run: |
           pytest --cov=app --cov-config=.coveragerc --cov-report=xml
 
