@@ -2,7 +2,7 @@ import base64
 import io
 import json
 import os
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 
@@ -78,10 +78,12 @@ def test_process_intake_prediction_user_not_found(client):
         assert response.get_json()['error'] == 'User not found'
 
 
-# Mock for the ImagePredictor class
-@patch('os.makedirs')
 @patch('app.app.ImagePredictor')
-def test_process_image_prediction_success(mock_image_predictor, mock_makedirs, client):
+@patch('app.app.os.makedirs')
+@patch('app.app.open', new_callable=mock_open)
+def test_process_image_prediction_success(
+    mock_open, mock_makedirs, mock_image_predictor, client
+):
     # Mock the prediction response
     mock_image_predictor.return_value.predict_image.return_value = {
         'predicted_class': 'tortilla',
@@ -92,8 +94,6 @@ def test_process_image_prediction_success(mock_image_predictor, mock_makedirs, c
             ('waffles', 0.02),
         ],
     }
-
-    mock_makedirs.return_value = {}
 
     # Create a fake image file (binary content)
     fake_image = io.BytesIO()
@@ -116,6 +116,12 @@ def test_process_image_prediction_success(mock_image_predictor, mock_makedirs, c
     assert response_data['confidence'] == 0.95
     assert len(response_data['all_predictions']) == 3
 
+    # Assert that os.makedirs was called (to create the upload folder)
+    mock_makedirs.assert_called_once_with('/mocked/uploads', exist_ok=True)
+
+    # Assert that the open function was called to save the file
+    mock_open.assert_called_once_with('/mocked/uploads/97.jpg', 'wb')
+    
 
 def test_process_image_prediction_no_data(client):
 
