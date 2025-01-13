@@ -66,15 +66,15 @@ def handle_bad_request(error):
     return jsonify({'error': 'Bad Request: ' + str(error)}), 400
 
 
-@app.errorhandler(Exception)
-def handle_generic_exception(error):
-    """Error handling for unknown exception"""
-    return (
-        jsonify(
-            {'error': 'An unexpected error occurred', 'details': str(error)}
-        ),
-        500,
-    )
+# @app.errorhandler(Exception)
+# def handle_generic_exception(error):
+#     """Error handling for unknown exception"""
+#     return (
+#         jsonify(
+#             {'error': 'An unexpected error occurred', 'details': str(error)}
+#         ),
+#         500,
+#     )
 
 
 # Routes

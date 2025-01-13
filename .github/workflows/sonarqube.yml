@@ -34,7 +34,7 @@ jobs:
           MAX_CONTENT_LENGTH: 167242
           ALLOWED_EXTENSIONS: png,jpg,jpeg
         run: |
-          pytest --cov=app --cov-config=.coveragerc --cov-report=xml
+          pytest --cov=app --cov-config=.coveragerc --cov-report=xml --disable-warnings -v
 
       - name: Run SonarQube Analysis
         env:
