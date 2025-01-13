@@ -31,6 +31,8 @@ jobs:
         run: |
           sudo mkdir -p ${{ runner.temp }}/uploads
           sudo chmod 777 ${{ runner.temp }}/uploads
+          sudo touch ${{ runner.temp }}/uploads/1.jpg
+          sudo touch ${{ runner.temp }}/uploads/19.jpg
 
       - name: Run Tests and Generate Coverage Report
         env:
