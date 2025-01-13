@@ -10,6 +10,7 @@ from werkzeug.exceptions import BadRequest, InternalServerError
 from .exceptions.exceptions import (UnsupportedContentTypeError,
                                     UserNotFoundError)
 from .models import calorieLLM
+from .models import recomendationsLLM
 from .models.recognitionDLM import ImagePredictor
 from .schemas.schemas_llm import RequestLlm, ResponseLlm
 
@@ -156,3 +157,14 @@ def process_image_prediction():
         # Ensure the file is removed, even if an exception occurs
         if os.path.exists(file_path):
             os.remove(file_path)
+
+@app.route('/chat', methods=['POST'])
+def nutriChat():
+    """
+    """
+    data = request.get_json()
+
+    response = recomendationsLLM.chat(
+        data
+    )
+    return jsonify({'response': response})

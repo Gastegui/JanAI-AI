@@ -1,11 +1,9 @@
-import os
-from pprint import pprint
-
 import mysql.connector
-from dotenv import load_dotenv
+from langchain_ollama import OllamaLLM
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
-from langchain_ollama import OllamaLLM
+from dotenv import load_dotenv
+import os
 
 load_dotenv()
 
@@ -17,7 +15,7 @@ db = mysql.connector.connect(
     database=os.getenv('DB'),
 )
 
-llm = OllamaLLM(model='llama3:latest')
+llm = OllamaLLM(model="llama3:latest", temperature=0)
 
 prompt_template = """
 You are a highly skilled nutrition expert. Based on the following data:
@@ -89,7 +87,7 @@ chain = LLMChain(llm=llm, prompt=prompt)
 
 def getUserData(user_id):
     cursor = db.cursor(dictionary=True)
-    query = 'SELECT * FROM userData WHERE userID = %s'
+    query = "SELECT height, age, waist, neck, hips, gender, activityLevel, objective, bmrMifflin, bmrHarrisBenedict, bmrKatchMcArdle, tdeeMifflin, tdeeHarrisBenedict, tdeeKatchMcArdle, bodyFat, totalWeightLoss, weeklyDeficit, dailyCalorieIntakeMifflin, dailyCalorieIntakeHarrisBenedict, dailyCalorieIntakeKatchMcArdle FROM userData WHERE userID = %s;"
     cursor.execute(query, (user_id,))
     result = cursor.fetchone()
     cursor.close()
@@ -98,50 +96,43 @@ def getUserData(user_id):
 
 def getWeightData(user_id):
     cursor = db.cursor(dictionary=True)
-    query = 'SELECT * FROM weightGoals WHERE userID = %s'
+    query = "SELECT * FROM weightGoals WHERE userID = %s ORDER BY registerDate DESC LIMIT 1;"
     cursor.execute(query, (user_id,))
     result = cursor.fetchone()
     cursor.close()
     return result
 
-
-def calculate_calories(user_id):
+def calculate_calories(user_id:int):
     userData = getUserData(user_id)
+    print("1")
     weightGoals = getWeightData(user_id)
+    print("2")
     if not userData:
-        return ({'error': f'No user found with ID {user_id}'}, 404)
+        return({"error":f"No user found with ID {user_id}"}, 404)
 
-    response = chain.invoke(
-        {
-            'height': userData['height'],
-            'weight': weightGoals['weight'],
-            'age': userData['age'],
-            'waist': userData['waist'],
-            'neck': userData['neck'],
-            'hips': userData.get('hips', ''),
-            'gender': userData['gender'],
-            'goalWeight': weightGoals['goalWeight'],
-            'durationToAchieveGoalWeight': weightGoals[
-                'durationToAchieveGoalWeight'
-            ],
-            'activityLevel': userData['activityLevel'],
-            'objective': userData['objective'],
-            'bmrMifflin': userData['bmrMifflin'],
-            'bmrHarrisBenedict': userData['bmrHarrisBenedict'],
-            'bmrKatchMcArdle': userData['bmrKatchMcArdle'],
-            'tdeeMifflin': userData['tdeeMifflin'],
-            'tdeeHarrisBenedict': userData['tdeeHarrisBenedict'],
-            'tdeeKatchMcArdle': userData['tdeeKatchMcArdle'],
-            'bodyFat': userData['bodyFat'],
-            'totalWeightLoss': userData['totalWeightLoss'],
-            'weeklyDeficit': userData['weeklyDeficit'],
-            'dailyCalorieIntakeMifflin': userData['dailyCalorieIntakeMifflin'],
-            'dailyCalorieIntakeHarrisBenedict': userData[
-                'dailyCalorieIntakeHarrisBenedict'
-            ],
-            'dailyCalorieIntakeKatchMcArdle': userData[
-                'dailyCalorieIntakeKatchMcArdle'
-            ],
-        }
-    )
-    return response['text']
+    response = chain.invoke({
+        "height": userData["height"],
+        "weight": weightGoals["weight"],
+        "age": userData["age"],
+        "waist": userData["waist"],
+        "neck": userData["neck"],
+        "hips": userData["hips"],
+        "gender": userData["gender"],
+        "goalWeight": weightGoals["goalWeight"],
+        "durationToAchieveGoalWeight": weightGoals["durationToAchieveGoalWeight"],
+        "activityLevel": userData["activityLevel"],
+        "objective": userData["objective"],
+        "bmrMifflin": userData["bmrMifflin"], 
+        "bmrHarrisBenedict": userData["bmrHarrisBenedict"],
+        "bmrKatchMcArdle": userData["bmrKatchMcArdle"], 
+        "tdeeMifflin": userData["tdeeMifflin"], 
+        "tdeeHarrisBenedict": userData["tdeeHarrisBenedict"], 
+        "tdeeKatchMcArdle": userData["tdeeKatchMcArdle"],
+        "bodyFat": userData["bodyFat"], 
+        "totalWeightLoss": userData["totalWeightLoss"], 
+        "weeklyDeficit": userData["weeklyDeficit"], 
+        "dailyCalorieIntakeMifflin": userData["dailyCalorieIntakeMifflin"],
+        "dailyCalorieIntakeHarrisBenedict": userData["dailyCalorieIntakeHarrisBenedict"], 
+        "dailyCalorieIntakeKatchMcArdle": userData["dailyCalorieIntakeKatchMcArdle"]
+    })
+    return response["text"]

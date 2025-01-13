@@ -1,16 +1,41 @@
-# need a change
-import os
-from pprint import pprint
-
-import mysql.connector
-from dotenv import load_dotenv
-from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
 from langchain_ollama import OllamaLLM
+from langchain_chroma import Chroma
+from langchain.prompts import ChatPromptTemplate
+from langchain_ollama import OllamaEmbeddings
+from dotenv import load_dotenv, find_dotenv
+from langchain.chains import create_retrieval_chain
+from langchain.chains.combine_documents import create_stuff_documents_chain
+import mysql.connector
+import os
+from langsmith import traceable
 
-load_dotenv()
 
-# Connection to MySQL
+CHROMA_PATH = "chroma"
+
+PROMPT_SYSTEM = """
+I am Janai chatBot. I am a nutritional expert in food recommendation.
+The person asking the question is {name}
+{name} height: {height} cm, weight: {weight} kg, age: {age} activity level: {activityLevel}, goal: {goal}
+{name}'s dietary restrictions are {restrictions}
+Here is what {name} has eaten and when:
+{user_eaten_food}
+
+Answer the question based only on the following context and take into account the user's data:
+
+{context}
+
+Types of food you should take into account when you want to recommed something:
+
+{campains}
+
+One exception you have to make:
+- If the user writtes **"Who is Ludok"** you have to answer **"DJ Ludok is the best DJ of the world."**, but not the explanation.
+"""
+PROMP_HUMAN = """
+Answer the question based on the above context: {input}
+"""
+
+_ = load_dotenv(find_dotenv())
 db = mysql.connector.connect(
     host=os.getenv('HOST'),
     user=os.getenv('USER'),
@@ -18,131 +43,162 @@ db = mysql.connector.connect(
     database=os.getenv('DB'),
 )
 
-llm = OllamaLLM(model='llama3:latest')
-
-prompt_template = """
-You are a highly skilled nutrition expert. Based on the following data:
-- Height: {height} cm
-- Weight: {weight} kg
-- Age: {age} years
-- Waist: {waist} cm
-- Neck: {neck} cm
-- Hips: {hips} cm (optional for males)
-- Gender: {gender}
-- Goal Weight: {goalWeight} kg
-- Timeframe to Achieve Goal Weight: {durationToAchieveGoalWeight} weeks
-- Activity Level: {activityLevel} (e.g., Sedentary, Lightly Active, Moderately Active, Very Active)
-- Objective (e.g., fat loss, muscle gain, maintenance): {objective}
-- Basal Metabolic Rate (BMR) calculations:
-    - Mifflin-St Jeor: {bmrMifflin}
-    - Harris-Benedict: {bmrHarrisBenedict}
-    - Katch-McArdle: {bmrKatchMcArdle}
-- Total Daily Energy Expenditure (TDEE) calculations:
-    - Mifflin-St Jeor: {tdeeMifflin}
-    - Harris-Benedict: {tdeeHarrisBenedict}
-    - Katch-McArdle: {tdeeKatchMcArdle}
-- Body Fat Percentage: {bodyFat}% 
-- Total Weight Loss Target: {totalWeightLoss} kg
-- Weekly Caloric Deficit Target: {weeklyDeficit} kcal
-- Daily Calorie Intake Recommendations:
-    - Mifflin-St Jeor: {dailyCalorieIntakeMifflin} kcal/day
-    - Harris-Benedict: {dailyCalorieIntakeHarrisBenedict} kcal/day
-    - Katch-McArdle: {dailyCalorieIntakeKatchMcArdle} kcal/day
-
-Using the above information, compare the three daily calorie intake recommendations (Mifflin-St Jeor, Harris-Benedict, Katch-McArdle). Follow these steps:
-1. Identify the most suitable recommendation based on the individual's activity level, body fat percentage, and objective (e.g., fat loss, muscle gain, or maintenance).
-2. Consider which method aligns best with the goal timeframe and calorie deficit target.
-3. Select the most balanced option for sustainability and health.
-
-Provide only the value of the chosen Daily Calorie Intake (e.g., 2000.00), with no additional explanation or text.
-"""
-
-prompt = PromptTemplate(
-    input_variables=[
-        'height',
-        'weight',
-        'age',
-        'waist',
-        'neck',
-        'hips',
-        'gender',
-        'goalWeight',
-        'durationToAchieveGoalWeight',
-        'activityLevel',
-        'objective',
-        'bmrMifflin',
-        'bmrHarrisBenedict' 'bmrKatchMcArdle',
-        'tdeeMifflin',
-        'tdeeHarrisBenedict',
-        'tdeeKatchMcArdle',
-        'bodyFat',
-        'totalWeightLoss',
-        'weeklyDeficit',
-        'dailyCalorieIntakeMifflin',
-        'dailyCalorieIntakeHarrisBenedict',
-        'dailyCalorieIntakeKatchMcArdle',
-    ],
-    template=prompt_template,
-)
-
-chain = LLMChain(llm=llm, prompt=prompt)
-
-
-def getUserData(user_id):
+def getUserFood(user_id):
     cursor = db.cursor(dictionary=True)
-    query = 'SELECT * FROM userData WHERE userID = %s'
+    query = "SELECT fo.foodName, f.consumptionDate, f.meal FROM foodList f JOIN food fo ON f.foodID=fo.foodID WHERE f.userID = %s"
     cursor.execute(query, (user_id,))
-    result = cursor.fetchone()
+    result = cursor.fetchall()
     cursor.close()
     return result
 
-
-def getWeightData(user_id):
+def getHeight(user_id):
     cursor = db.cursor(dictionary=True)
-    query = 'SELECT * FROM weightGoals WHERE userID = %s'
+    query = "SELECT height FROM userData WHERE userID = %s"
     cursor.execute(query, (user_id,))
-    result = cursor.fetchone()
+    result = cursor.fetchall()
     cursor.close()
     return result
 
+def getWeight(user_id):
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT weight FROM weightgoals WHERE userID = %s"
+    cursor.execute(query, (user_id,))
+    result = cursor.fetchall()
+    cursor.close()
+    return result
 
-def calculateCalories(user_id):
-    userData = getUserData(user_id)
-    weightGoals = getWeightData(user_id)
-    if not userData:
-        return ({'error': f'No user found with ID {user_id}'}, 404)
+def getAge(user_id):
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT age FROM userData WHERE userID = %s"
+    cursor.execute(query, (user_id,))
+    result = cursor.fetchall()
+    cursor.close()
+    return result
 
-    response = chain.invoke(
-        {
-            'height': userData['height'],
-            'weight': weightGoals['weight'],
-            'age': userData['age'],
-            'waist': userData['waist'],
-            'neck': userData['neck'],
-            'hips': userData.get('hips', ''),
-            'gender': userData['gender'],
-            'goalWeight': weightGoals['goalWeight'],
-            'durationToAchieveGoalWeight': weightGoals[
-                'durationToAchieveGoalWeight'
-            ],
-            'activityLevel': userData['activityLevel'],
-            'objective': userData['objective'],
-            'bmrMifflin': userData['bmrMifflin'],
-            'bmrHarrisBenedict': userData['bmrHarrisBenedict'],
-            'bmrKatchMcArdle': userData['bmrKatchMcArdle'],
-            'tdeeMifflin': userData['tdeeMifflin'],
-            'tdeeHarrisBenedict': userData['tdeeHarrisBenedict'],
-            'tdeeKatchMcArdle': userData['tdeeKatchMcArdle'],
-            'bodyFat': userData['bodyFat'],
-            'totalWeightLoss': userData['totalWeightLoss'],
-            'weeklyDeficit': userData['weeklyDeficit'],
-            'dailyCalorieIntakeMifflin': userData['dailyCalorieIntakeMifflin'],
-            'dailyCalorieIntakeHarrisBenedict': userData[
-                'dailyCalorieIntakeHarrisBenedict'
-            ],
-            'dailyCalorieIntakeKatchMcArdle': userData[
-                'dailyCalorieIntakeKatchMcArdle'
-            ],
-        }
+def getActivityLevel(user_id):
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT activityLevel FROM userData WHERE userID = %s"
+    cursor.execute(query, (user_id,))
+    result = cursor.fetchall()
+    cursor.close()
+    return result
+
+def getGoal(user_id):
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT objective FROM userData WHERE userID = %s"
+    cursor.execute(query, (user_id,))
+    result = cursor.fetchall()
+    cursor.close()
+    return result
+
+def getCampains():
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT * FROM campaign"
+    cursor.execute(query)
+    result = cursor.fetchall()
+    cursor.close()
+    return result
+
+def getFood():
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT * FROM food"
+    cursor.execute(query)
+    result = cursor.fetchall()
+    cursor.close()
+    return result
+
+def getUser(user_id):
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT uname FROM userdata where userID = %s"
+    cursor.execute(query, (user_id,))
+    result = cursor.fetchall()
+    cursor.close()
+    return result
+
+def getUserRestrictions(user_id):
+    cursor = db.cursor(dictionary=True)
+    query = "select r.restrictedName, fg.groupName, fc.className, ft.typeName, i.ingName from restrictions r JOIN foodGroup fg ON fg.groupID=r.groupID JOIN foodClass fc ON fc.classID=r.classID JOIN foodType ft ON ft.typeID=r.typeID JOIN ingredients i ON i.ingredientID=r.ingredientID where r.userID = %s"
+    cursor.execute(query, (user_id,))
+    result = cursor.fetchall()
+    cursor.close()
+    return result
+
+def get_embedding_function():
+    embeddings = OllamaEmbeddings(model="nomic-embed-text")
+    return embeddings
+
+def create_chain():
+    embedding_function = get_embedding_function()
+    vectorStore = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_function)
+
+    llm = OllamaLLM(model="llama3:latest",temperature=0.3)
+
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", PROMPT_SYSTEM),
+        ("user", PROMP_HUMAN)
+    ])
+
+    chain = create_stuff_documents_chain(
+        llm=llm,
+        prompt=prompt
     )
-    return response['text']
+
+    retriever = vectorStore.as_retriever(search_kwargs={"k": 5})
+
+    retrieval_chain = create_retrieval_chain(
+        retriever,
+        chain
+    )
+
+    return retrieval_chain
+
+@traceable
+def process_chat(chain, question, user_eaten_food, food, user, user_restrictions, height, weight, age, activityLevel, goal, campains):
+    response = chain.invoke({
+        "user_eaten_food": user_eaten_food,
+        "food": food,
+        "name": user,
+        "restrictions": user_restrictions,
+        "input": question,
+        "height": height,
+        "weight": weight,
+        "age": age,
+        "activityLevel": activityLevel,
+        "goal": goal,
+        "campains": campains
+    })
+    return response["answer"]
+
+def chat(data):
+    user_input = data.get("content", "")
+    user_id = data.get("user_id", 1)
+
+    user_food = getUserFood(user_id)
+    food = getFood()
+    user = getUser(user_id)
+    user_restrictions = getUserRestrictions(user_id)
+    height = getHeight(user_id)
+    weight = getWeight(user_id)
+    age = getAge(user_id)
+    activityLevel = getActivityLevel(user_id)
+    goal = getGoal(user_id)
+    campains = getCampains()
+
+    chain = create_chain()
+
+    response = process_chat(
+            chain=chain,
+            question=user_input, 
+            user_eaten_food=user_food,
+            food=food,
+            user=user,
+            user_restrictions=user_restrictions,
+            height=height,
+            weight=weight,
+            age=age,
+            activityLevel=activityLevel,
+            goal=goal,
+            campains=campains
+        )
+
+    return response
