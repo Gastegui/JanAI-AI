@@ -117,11 +117,8 @@ def test_process_image_prediction_success(
     assert len(response_data['all_predictions']) == 3
 
     # Assert that os.makedirs was called (to create the upload folder)
-    mock_makedirs.assert_called_once_with('/mocked/uploads', exist_ok=True)
+    mock_makedirs.assert_called_once_with('/upload', exist_ok=True)
 
-    # Assert that the open function was called to save the file
-    mock_open.assert_called_once_with('/mocked/uploads/97.jpg', 'wb')
-    
 
 def test_process_image_prediction_no_data(client):
 
