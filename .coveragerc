@@ -1,6 +1,5 @@
 [run]
 omit =
-    app/models/*
     */test_*.py
     */__init__.py
 

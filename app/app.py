@@ -1,4 +1,4 @@
-"""Main model serving API module"""
+"""Main model serving API module."""
 import os
 import random
 from base64 import decodebytes
@@ -32,11 +32,19 @@ app.config['ALLOWED_EXTENSIONS'] = set(
     os.getenv('ALLOWED_EXTENSIONS').split(',')
 )
 
-
-# Helper Methods
+# Miscellaneous
 def validate_content_type(validate_request):
     """
-    Helper method for validating application content types
+    Helper method for validating application content types.
+
+    Args:
+        validate_request: The Flask request object.
+
+    Returns:
+        The JSON body of the request if the content type is valid.
+
+    Raises:
+        UnsupportedContentTypeError: If the content type is not 'application/json'.
     """
     content_type = validate_request.headers.get('Content-Type')
     if content_type == 'application/json':
@@ -50,25 +58,57 @@ def validate_content_type(validate_request):
 # Error Handlers
 @app.errorhandler(UnsupportedContentTypeError)
 def handle_unsupported_content_type(error):
-    """Error handler for unsupported content type"""
+    """
+    Handles the exception for unsupported content types.
+
+    Args:
+        error (UnsupportedContentTypeError): The exception raised when an unsupported content type is encountered.
+
+    Returns:
+        tuple: JSON response with the error message and HTTP status code 415 (Unsupported Media Type).
+    """
     return jsonify({'error': str(error)}), 415
 
 
 @app.errorhandler(UserNotFoundError)
 def handle_user_not_found(error):
-    """Error handler for user not found"""
+    """
+    Handles the exception when a user is not found.
+
+    Args:
+        error (UserNotFoundError): The exception raised when a user is not found.
+
+    Returns:
+        tuple: JSON response with the error message and HTTP status code 404 (Not Found).
+    """
     return jsonify({'error': str(error)}), 404
 
 
 @app.errorhandler(BadRequest)
 def handle_bad_request(error):
-    """Error handler for bad request"""
+    """
+    Handles the exception for bad request.
+
+    Args:
+        error (BadRequest): The exception raised for a bad request.
+
+    Returns:
+        tuple: JSON response with the error message and HTTP status code 400 (Bad Request).
+    """
     return jsonify({'error': 'Bad Request: ' + str(error)}), 400
 
 
 @app.errorhandler(Exception)
 def handle_generic_exception(error):
-    """Error handling for unknown exception"""
+    """
+    Handles generic exceptions that are not caught by other error handlers.
+
+    Args:
+        error (Exception): The exception that was raised.
+
+    Returns:
+        tuple: JSON response with a generic error message and HTTP status code 500 (Internal Server Error).
+    """
     return (
         jsonify(
             {'error': 'An unexpected error occurred', 'details': str(error)}
@@ -81,8 +121,18 @@ def handle_generic_exception(error):
 @app.route('/intake_prediction', methods=['POST'])
 def process_intake_prediction():
     """
-    Method to pass user biometric data to
-    intake prediction model
+    Processes a user’s biometric data to predict calorie intake.
+
+    Args:
+        request_json (dict): The JSON body of the request containing the `userID`.
+
+    Returns:
+        dict: A JSON response containing the predicted calorie intake.
+
+    Raises:
+        UserNotFoundError: If the user is not found in the system.
+        UnsupportedContentTypeError: If the content type of the request is not 'application/json'.
+        InternalServerError: If an unexpected error occurs during processing.
     """
     try:
         request_json = validate_content_type(request)
@@ -103,8 +153,17 @@ def process_intake_prediction():
 @app.route('/image_prediction', methods=['POST'])
 def process_image_prediction():
     """
-    Method to upload an image for prediction.
-    Returns a generic response for now.
+    Processes an uploaded image for prediction of food class.
+
+    Args:
+        request (Flask Request): The Flask request object containing the image data in binary format.
+
+    Returns:
+        dict: A JSON response containing the predicted class, confidence, and all predictions.
+
+    Raises:
+        BadRequest: If no image file is found in the request.
+        InternalServerError: If an unexpected error occurs during image processing.
     """
     file_path = ''
     try:
@@ -125,6 +184,7 @@ def process_image_prediction():
         # Ensure the directory exists
         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
+        # Save the uploaded file
         with open(
             '/'.join([app.config['UPLOAD_FOLDER'], filename]), 'wb'
         ) as f:
@@ -133,7 +193,7 @@ def process_image_prediction():
         # Secure the filename and save the file temporarily
         file_path = '/'.join([app.config['UPLOAD_FOLDER'], filename])
 
-        # Mock prediction result (replace with actual model logic later)
+        # Use the ImagePredictor to make a prediction
         image_model = ImagePredictor()
         prediction = image_model.predict_image(file_path)
 
