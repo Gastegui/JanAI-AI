@@ -8,13 +8,23 @@ from langchain_ollama import OllamaLLM
 
 load_dotenv()
 
-# Connection to MySQL
-db = mysql.connector.connect(
-    host=os.getenv('HOST'),
-    user=os.getenv('USER'),
-    password=os.getenv('PASS'),
-    database=os.getenv('DB'),
-)
+
+def get_db_connection():
+    return mysql.connector.connect(
+        host=os.getenv('HOST'),
+        user=os.getenv('USER'),
+        password=os.getenv('PASS'),
+        database=os.getenv('DB'),
+    )
+
+
+# # Connection to MySQL
+# db = mysql.connector.connect(
+#     host=os.getenv('HOST'),
+#     user=os.getenv('USER'),
+#     password=os.getenv('PASS'),
+#     database=os.getenv('DB'),
+# )
 
 llm = OllamaLLM(model='llama3:latest')
 
@@ -88,20 +98,22 @@ chain = LLMChain(llm=llm, prompt=prompt)
 
 
 def getUserData(user_id):
-    cursor = db.cursor(dictionary=True)
-    query = 'SELECT * FROM userData WHERE userID = %s'
-    cursor.execute(query, (user_id,))
-    result = cursor.fetchone()
-    cursor.close()
+    with get_db_connection() as db:
+        cursor = db.cursor(dictionary=True)
+        query = 'SELECT * FROM userData WHERE userID = %s'
+        cursor.execute(query, (user_id,))
+        result = cursor.fetchone()
+        cursor.close()
     return result
 
 
 def getWeightData(user_id):
-    cursor = db.cursor(dictionary=True)
-    query = 'SELECT * FROM weightGoals WHERE userID = %s'
-    cursor.execute(query, (user_id,))
-    result = cursor.fetchone()
-    cursor.close()
+    with get_db_connection() as db:
+        cursor = db.cursor(dictionary=True)
+        query = 'SELECT * FROM weightGoals WHERE userID = %s'
+        cursor.execute(query, (user_id,))
+        result = cursor.fetchone()
+        cursor.close()
     return result
 
 

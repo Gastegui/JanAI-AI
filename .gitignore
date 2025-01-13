@@ -6,3 +6,4 @@ env
 upload/*
 .vscode/
 .pytest_cache
+.coverage

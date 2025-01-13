@@ -7,8 +7,10 @@ from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from werkzeug.exceptions import BadRequest, InternalServerError
 
-from .exceptions.exceptions import (UnsupportedContentTypeError,
-                                    UserNotFoundError)
+from .exceptions.exceptions import (
+    UnsupportedContentTypeError,
+    UserNotFoundError,
+)
 from .models import calorieLLM
 from .models.recognitionDLM import ImagePredictor
 from .schemas.schemas import RequestLlm, ResponseDlm, ResponseLlm
@@ -43,17 +45,6 @@ def validate_content_type(validate_request):
         raise UnsupportedContentTypeError(
             f'Content-Type {content_type} is not supported!'
         )
-
-
-def allowed_file(filename):
-    """
-    Check if the file has an allowed extension.
-    """
-    return (
-        '.' in filename
-        and filename.rsplit('.', 1)[1].lower()
-        in app.config['ALLOWED_EXTENSIONS']
-    )
 
 
 # Error Handlers

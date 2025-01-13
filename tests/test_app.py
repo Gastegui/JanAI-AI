@@ -7,22 +7,32 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from app.app import app
-from app.exceptions.exceptions import (UnsupportedContentTypeError,
-                                       UserNotFoundError)
+from app.exceptions.exceptions import (
+    UnsupportedContentTypeError,
+    UserNotFoundError,
+)
 
 
 @pytest.fixture
 def client():
-    app.config['TESTING'] = True
-    app.config['UPLOAD_FOLDER'] = '/tmp/uploads'
-    with app.test_client() as client:
-        yield client
+    with patch('mysql.connector.connect'):
+        app.config['TESTING'] = True
+        app.config['UPLOAD_FOLDER'] = '/upload'
+        with app.test_client() as client:
+            yield client
 
 
 # Mock for calorieLLM
+@patch('mysql.connector')
 @patch('app.models.calorieLLM.calculate_calories', return_value=2000)
-def test_process_intake_prediction(mock_calculate_calories, client):
+def test_process_intake_prediction(
+    mock_calculate_calories, mock_connect, client
+):
     payload = {'userID': 0}
+
+    mock_cursor = MagicMock()
+    mock_cursor.configure_mock(**{'fetchone.return_value': []})
+    mock_connect.return_value = {}
 
     response = client.post('/intake_prediction', json=payload)
 
@@ -41,6 +51,19 @@ def test_process_intake_prediction_missing_content_type(client):
     )
 
 
+def test_process_intake_prediction_unexpected(client):
+    with patch(
+        'app.models.calorieLLM.calculate_calories',
+        side_effect=Exception('Wildcard Exception'),
+    ):
+        payload = {'userID': 0}
+
+        response = client.post('/intake_prediction', json=payload)
+
+        assert response.status_code == 500
+        assert response.get_json()['error'] == 'An unexpected error occurred'
+
+
 def test_process_intake_prediction_user_not_found(client):
     with patch(
         'app.models.calorieLLM.calculate_calories',
@@ -54,51 +77,40 @@ def test_process_intake_prediction_user_not_found(client):
         assert response.get_json()['error'] == 'User not found'
 
 
-# @patch(
-#     'app.models.recognitionDLM.ImagePredictor'
-# )  # Mock the entire ImagePredictor class
-# @patch('builtins.open')  # Mock file handling
-# @patch('os.makedirs')  # Mock directory creation
-# @patch('os.path.exists', return_value=False)  # Mock file existence check
-# def test_process_image_prediction(
-#     mock_exists, mock_makedirs, mock_open, mock_image_predictor, client
-# ):
-#     # Mock the ImagePredictor instance and its predict_image method
-#     mock_image_predictor.return_value = MagicMock()
-#     mock_image_predictor.predict_image.return_value = {
-#         'predicted_class': 'cat',
-#         'confidence': 0.95,
-#         'all_predictions': [
-#             ('cat', 0.95),
-#             ('dog', 0.05),
-#         ],
-#     }
+# Mock for the ImagePredictor class
+@patch('app.app.ImagePredictor')
+def test_process_image_prediction_success(mock_image_predictor, client):
+    # Mock the prediction response
+    mock_image_predictor.return_value.predict_image.return_value = {
+        'predicted_class': 'tortilla',
+        'confidence': 0.95,
+        'all_predictions': [
+            ('tortilla', 0.95),
+            ('pancakes', 0.03),
+            ('waffles', 0.02),
+        ],
+    }
 
-#     # Create a fake image file and encode it as Base64
-#     fake_image_data = b'fake_binary_data'  # Simulate binary image content
-#     fake_image_base64 = base64.b64encode(fake_image_data)
+    # Create a fake image file (binary content)
+    fake_image = io.BytesIO()
+    fake_image.write(b'fake_image_content')
+    fake_image.seek(0)
 
-#     # Simulate sending a POST request with Base64-encoded data
-#     response = client.post(
-#         '/image_prediction',
-#         data=fake_image_base64,  # Send valid Base64-encoded data
-#     )
+    # Encode the fake image as a base64 string
+    encoded_image = base64.b64encode(fake_image.getvalue()).decode('utf-8')
 
-#     mock_open.return_value = {}
-#     mock_exists.return_value = {}
-#     mock_makedirs.return_value = {}
+    # Send the POST request with the base64 image as data
+    response = client.post(
+        '/image_prediction',
+        data=base64.b64decode(encoded_image),  # Send binary data
+    )
 
-#     # Assert the response is successful and contains the expected prediction
-#     assert response.data == 'u'
-#     assert response.status_code == 200
-#     assert response.get_json() == {
-#         'predicted_class': 'cat',
-#         'confidence': 0.95,
-#         'all_predictions': [
-#             ('cat', 0.95),
-#             ('dog', 0.05),
-#         ],
-#     }
+    # Assert the response
+    assert response.status_code == 200
+    response_data = json.loads(response.data)
+    assert response_data['predicted_class'] == 'tortilla'
+    assert response_data['confidence'] == 0.95
+    assert len(response_data['all_predictions']) == 3
 
 
 def test_process_image_prediction_no_data(client):
