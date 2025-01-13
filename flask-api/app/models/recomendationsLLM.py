@@ -7,7 +7,6 @@ from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 import mysql.connector
 import os
-from langsmith import traceable
 
 
 CHROMA_PATH = "chroma"
@@ -43,50 +42,50 @@ db = mysql.connector.connect(
     database=os.getenv('DB'),
 )
 
-def getUserFood(user_id):
+def getUserFood(username):
     cursor = db.cursor(dictionary=True)
-    query = "SELECT fo.foodName, f.consumptionDate, f.meal FROM foodList f JOIN food fo ON f.foodID=fo.foodID WHERE f.userID = %s"
-    cursor.execute(query, (user_id,))
+    query = "SELECT fo.foodName, f.consumptionDate, f.meal FROM foodList f JOIN food fo ON f.foodID=fo.foodID JOIN userData u ON f.userID=u.userID WHERE u.username = %s AND f.consumptionDate >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)"
+    cursor.execute(query, (username,))
     result = cursor.fetchall()
     cursor.close()
     return result
 
-def getHeight(user_id):
+def getHeight(username):
     cursor = db.cursor(dictionary=True)
-    query = "SELECT height FROM userData WHERE userID = %s"
-    cursor.execute(query, (user_id,))
+    query = "SELECT height FROM userData WHERE username = %s"
+    cursor.execute(query, (username,))
     result = cursor.fetchall()
     cursor.close()
     return result
 
-def getWeight(user_id):
+def getWeight(username):
     cursor = db.cursor(dictionary=True)
-    query = "SELECT weight FROM weightgoals WHERE userID = %s"
-    cursor.execute(query, (user_id,))
+    query = "SELECT weight FROM weightgoals w JOIN userData u ON w.userID=u.userID WHERE username = %s"
+    cursor.execute(query, (username,))
     result = cursor.fetchall()
     cursor.close()
     return result
 
-def getAge(user_id):
+def getAge(username):
     cursor = db.cursor(dictionary=True)
-    query = "SELECT age FROM userData WHERE userID = %s"
-    cursor.execute(query, (user_id,))
+    query = "SELECT age FROM userData WHERE username = %s"
+    cursor.execute(query, (username,))
     result = cursor.fetchall()
     cursor.close()
     return result
 
-def getActivityLevel(user_id):
+def getActivityLevel(username):
     cursor = db.cursor(dictionary=True)
-    query = "SELECT activityLevel FROM userData WHERE userID = %s"
-    cursor.execute(query, (user_id,))
+    query = "SELECT activityLevel FROM userData WHERE username = %s"
+    cursor.execute(query, (username,))
     result = cursor.fetchall()
     cursor.close()
     return result
 
-def getGoal(user_id):
+def getGoal(username):
     cursor = db.cursor(dictionary=True)
-    query = "SELECT objective FROM userData WHERE userID = %s"
-    cursor.execute(query, (user_id,))
+    query = "SELECT objective FROM userData WHERE username = %s"
+    cursor.execute(query, (username,))
     result = cursor.fetchall()
     cursor.close()
     return result
@@ -107,18 +106,18 @@ def getFood():
     cursor.close()
     return result
 
-def getUser(user_id):
+def getUser(username):
     cursor = db.cursor(dictionary=True)
-    query = "SELECT uname FROM userdata where userID = %s"
-    cursor.execute(query, (user_id,))
+    query = "SELECT uname FROM userdata where username = %s"
+    cursor.execute(query, (username,))
     result = cursor.fetchall()
     cursor.close()
     return result
 
-def getUserRestrictions(user_id):
+def getUserRestrictions(username):
     cursor = db.cursor(dictionary=True)
-    query = "select r.restrictedName, fg.groupName, fc.className, ft.typeName, i.ingName from restrictions r JOIN foodGroup fg ON fg.groupID=r.groupID JOIN foodClass fc ON fc.classID=r.classID JOIN foodType ft ON ft.typeID=r.typeID JOIN ingredients i ON i.ingredientID=r.ingredientID where r.userID = %s"
-    cursor.execute(query, (user_id,))
+    query = "SELECT r.restrictedName, fg.groupName, fc.className, ft.typeName, i.ingName from restrictions r JOIN foodGroup fg ON fg.groupID=r.groupID JOIN foodClass fc ON fc.classID=r.classID JOIN foodType ft ON ft.typeID=r.typeID JOIN ingredients i ON i.ingredientID=r.ingredientID JOIN userData u ON r.userID=u.userID where u.username = %s"
+    cursor.execute(query, (username,))
     result = cursor.fetchall()
     cursor.close()
     return result
@@ -152,7 +151,6 @@ def create_chain():
 
     return retrieval_chain
 
-@traceable
 def process_chat(chain, question, user_eaten_food, food, user, user_restrictions, height, weight, age, activityLevel, goal, campains):
     response = chain.invoke({
         "user_eaten_food": user_eaten_food,
@@ -171,17 +169,20 @@ def process_chat(chain, question, user_eaten_food, food, user, user_restrictions
 
 def chat(data):
     user_input = data.get("content", "")
-    user_id = data.get("user_id", 1)
+    username = data.get("username","")
 
-    user_food = getUserFood(user_id)
+    print("User input: ", user_input)
+    print("Username: ", username)
+
+    user_food = getUserFood(username)
     food = getFood()
-    user = getUser(user_id)
-    user_restrictions = getUserRestrictions(user_id)
-    height = getHeight(user_id)
-    weight = getWeight(user_id)
-    age = getAge(user_id)
-    activityLevel = getActivityLevel(user_id)
-    goal = getGoal(user_id)
+    user = getUser(username)
+    user_restrictions = getUserRestrictions(username)
+    height = getHeight(username)
+    weight = getWeight(username)
+    age = getAge(username)
+    activityLevel = getActivityLevel(username)
+    goal = getGoal(username)
     campains = getCampains()
 
     chain = create_chain()
