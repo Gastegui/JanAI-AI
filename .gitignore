@@ -3,3 +3,10 @@ __pycache__/
 flask-api/env
 flask-api/.env
 Image\ Recognition/
+__pycache__
+training
+env
+upload/*
+.vscode/
+.pytest_cache
+.coverage

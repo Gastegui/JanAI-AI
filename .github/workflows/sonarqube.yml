@@ -1,0 +1,63 @@
+name: SonarQube Analysis
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sonarqube:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install pytorch
+        run: |
+          pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu124
+
+      - name: Set correct permissions for upload folder
+        run: |
+          sudo mkdir -p ${{ runner.temp }}/uploads
+          sudo chmod 777 ${{ runner.temp }}/uploads
+          sudo touch ${{ runner.temp }}/uploads/1.jpg
+          sudo touch ${{ runner.temp }}/uploads/19.jpg
+
+      - name: Run Tests and Generate Coverage Report
+        env:
+          APPLICATION_ROOT: ${{ runner.temp}}/root
+          UPLOAD_FOLDER: ${{ runner.temp }}/uploads
+          MAX_CONTENT_LENGTH: 167242
+          ALLOWED_EXTENSIONS: png,jpg,jpeg
+        run: |
+          pytest --cov=app --cov-config=.coveragerc --cov-report=xml --disable-warnings -v
+
+      - name: Run SonarQube Analysis
+        env:
+          SONAR_KEY: JanAI-AI
+          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONARQUBE_URL }}
+        run: |
+          wget -q -O sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+          unzip sonar-scanner-cli.zip -d /opt/
+          export PATH=$PATH:/opt/sonar-scanner-5.0.1.3006-linux/bin
+          sonar-scanner \
+            -Dsonar.projectKey=JanAI-AI \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=$SONAR_HOST_URL \
+            -Dsonar.login=$SONAR_TOKEN \
+            -Dsonar.qualitygate.wait=true \
+            -Dsonar.language=py \
+            -Dsonar.python.coverage.reportPaths=coverage.xml \
+            -X

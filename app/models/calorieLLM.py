@@ -7,13 +7,23 @@ import os
 
 load_dotenv()
 
-# Connection to MySQL
-db = mysql.connector.connect(
-    host=os.getenv('HOST'),
-    user=os.getenv('USER'),
-    password=os.getenv('PASS'),
-    database=os.getenv('DB'),
-)
+
+def get_db_connection():
+    return mysql.connector.connect(
+        host=os.getenv('HOST'),
+        user=os.getenv('USER'),
+        password=os.getenv('PASS'),
+        database=os.getenv('DB'),
+    )
+
+
+# # Connection to MySQL
+# db = mysql.connector.connect(
+#     host=os.getenv('HOST'),
+#     user=os.getenv('USER'),
+#     password=os.getenv('PASS'),
+#     database=os.getenv('DB'),
+# )
 
 llm = OllamaLLM(model="llama3:latest", temperature=0)
 
@@ -68,7 +78,8 @@ prompt = PromptTemplate(
         'activityLevel',
         'objective',
         'bmrMifflin',
-        'bmrHarrisBenedict' 'bmrKatchMcArdle',
+        'bmrHarrisBenedict',
+        'bmrKatchMcArdle',
         'tdeeMifflin',
         'tdeeHarrisBenedict',
         'tdeeKatchMcArdle',
@@ -86,20 +97,22 @@ chain = LLMChain(llm=llm, prompt=prompt)
 
 
 def getUserData(user_id):
-    cursor = db.cursor(dictionary=True)
-    query = "SELECT height, age, waist, neck, hips, gender, activityLevel, objective, bmrMifflin, bmrHarrisBenedict, bmrKatchMcArdle, tdeeMifflin, tdeeHarrisBenedict, tdeeKatchMcArdle, bodyFat, totalWeightLoss, weeklyDeficit, dailyCalorieIntakeMifflin, dailyCalorieIntakeHarrisBenedict, dailyCalorieIntakeKatchMcArdle FROM userData WHERE userID = %s;"
-    cursor.execute(query, (user_id,))
-    result = cursor.fetchone()
-    cursor.close()
+    with get_db_connection() as db:
+        cursor = db.cursor(dictionary=True)
+        query = "SELECT height, age, waist, neck, hips, gender, activityLevel, objective, bmrMifflin, bmrHarrisBenedict, bmrKatchMcArdle, tdeeMifflin, tdeeHarrisBenedict, tdeeKatchMcArdle, bodyFat, totalWeightLoss, weeklyDeficit, dailyCalorieIntakeMifflin, dailyCalorieIntakeHarrisBenedict, dailyCalorieIntakeKatchMcArdle FROM userData WHERE userID = %s;"
+        cursor.execute(query, (user_id,))
+        result = cursor.fetchone()
+        cursor.close()
     return result
 
 
 def getWeightData(user_id):
-    cursor = db.cursor(dictionary=True)
-    query = "SELECT * FROM weightGoals WHERE userID = %s ORDER BY registerDate DESC LIMIT 1;"
-    cursor.execute(query, (user_id,))
-    result = cursor.fetchone()
-    cursor.close()
+    with get_db_connection() as db:
+        cursor = db.cursor(dictionary=True)
+        query = "SELECT * FROM weightGoals WHERE userID = %s ORDER BY registerDate DESC LIMIT 1;"
+        cursor.execute(query, (user_id,))
+        result = cursor.fetchone()
+        cursor.close()
     return result
 
 def calculate_calories(user_id:int):

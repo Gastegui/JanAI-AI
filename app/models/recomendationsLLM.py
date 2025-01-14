@@ -1,6 +1,7 @@
+from langchain.chains import LLMChain
 from langchain_ollama import OllamaLLM
 from langchain_chroma import Chroma
-from langchain.prompts import ChatPromptTemplate
+from langchain.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_ollama import OllamaEmbeddings
 from dotenv import load_dotenv, find_dotenv
 from langchain.chains import create_retrieval_chain
