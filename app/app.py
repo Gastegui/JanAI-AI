@@ -7,12 +7,9 @@ from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from werkzeug.exceptions import BadRequest, InternalServerError
 
-from .exceptions.exceptions import (
-    UnsupportedContentTypeError,
-    UserNotFoundError,
-)
-from .models import calorieLLM
-from .models import recomendationsLLM
+from .exceptions.exceptions import (UnsupportedContentTypeError,
+                                    UserNotFoundError)
+from .models import calorieLLM, recomendationsLLM
 from .models.recognitionDLM import ImagePredictor
 from .schemas.schemas import RequestLlm, ResponseDlm, ResponseLlm
 
@@ -211,13 +208,16 @@ def process_image_prediction():
         if os.path.exists(file_path):
             os.remove(file_path)
 
+
 @app.route('/chat', methods=['POST'])
-def nutriChat():
+def nutri_chat():
     """
+    Processes a given prompt from user to the chat-bot LLM and returns its recommendations.
+
+    Returns:
+        dict: A JSON response containing the LLM's suggestions.
     """
     data = request.get_json()
 
-    response = recomendationsLLM.chat(
-        data
-    )
+    response = recomendationsLLM.chat(data)
     return jsonify({'response': response})

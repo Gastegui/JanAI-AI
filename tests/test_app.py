@@ -2,16 +2,13 @@ import base64
 import io
 import json
 import math
-import os
 from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 
 from app.app import app
-from app.exceptions.exceptions import (
-    UnsupportedContentTypeError,
-    UserNotFoundError,
-)
+from app.exceptions.exceptions import (UnsupportedContentTypeError,
+                                       UserNotFoundError)
 
 
 @pytest.fixture
@@ -194,6 +191,35 @@ def test_process_image_prediction_no_data(client):
         response.get_json()['error']
         == 'Bad Request: 400 Bad Request: No image file found in the request'
     )
+
+
+# Mock for recommendationLLM
+@patch('app.models.recomendationsLLM.chat', return_value='Control yourself')
+def test_process_chat(mock_recommendation, client):
+    """
+    Test case for processing the chat bot.
+
+    Args:
+        mock_recommendation (MagicMock): Mock for the recommendation LLM's response.
+        client (flask.testing.FlaskClient): The test client for making requests.
+
+    Asserts:
+        - 200 status code.
+        - Proper return of chat response.
+    """
+    payload = {
+        'context': 'Id like to have a cheat meal today, what can i eat',
+        'username': 'lukeniri',
+    }
+
+    mock_recommendation.return_value = 'Control yourself, have a snickers'
+
+    response = client.post('/chat', json=payload)
+
+    assert response.status_code == 200
+    response_data = json.loads(response.data)
+    assert response_data is not None
+    assert response_data['response'] == 'Control yourself, have a snickers'
 
 
 # Test Error Handlers

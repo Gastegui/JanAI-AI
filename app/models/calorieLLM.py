@@ -1,9 +1,10 @@
+import os
+
 import mysql.connector
-from langchain_ollama import OllamaLLM
+from dotenv import load_dotenv
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
-from dotenv import load_dotenv
-import os
+from langchain_ollama import OllamaLLM
 
 load_dotenv()
 
@@ -17,15 +18,7 @@ def get_db_connection():
     )
 
 
-# # Connection to MySQL
-# db = mysql.connector.connect(
-#     host=os.getenv('HOST'),
-#     user=os.getenv('USER'),
-#     password=os.getenv('PASS'),
-#     database=os.getenv('DB'),
-# )
-
-llm = OllamaLLM(model="llama3:latest", temperature=0)
+llm = OllamaLLM(model='llama3:latest', temperature=0)
 
 prompt_template = """
 You are a highly skilled nutrition expert. Based on the following data:
@@ -96,56 +89,65 @@ prompt = PromptTemplate(
 chain = LLMChain(llm=llm, prompt=prompt)
 
 
-def getUserData(user_id):
-    with get_db_connection() as db:
-        cursor = db.cursor(dictionary=True)
-        query = "SELECT height, age, waist, neck, hips, gender, activityLevel, objective, bmrMifflin, bmrHarrisBenedict, bmrKatchMcArdle, tdeeMifflin, tdeeHarrisBenedict, tdeeKatchMcArdle, bodyFat, totalWeightLoss, weeklyDeficit, dailyCalorieIntakeMifflin, dailyCalorieIntakeHarrisBenedict, dailyCalorieIntakeKatchMcArdle FROM userData WHERE userID = %s;"
-        cursor.execute(query, (user_id,))
-        result = cursor.fetchone()
-        cursor.close()
+def getUserData(user_id, db):
+    cursor = db.cursor(dictionary=True)
+    query = 'SELECT height, age, waist, neck, hips, gender, activityLevel, objective, bmrMifflin, bmrHarrisBenedict, bmrKatchMcArdle, tdeeMifflin, tdeeHarrisBenedict, tdeeKatchMcArdle, bodyFat, totalWeightLoss, weeklyDeficit, dailyCalorieIntakeMifflin, dailyCalorieIntakeHarrisBenedict, dailyCalorieIntakeKatchMcArdle FROM userData WHERE userID = %s;'
+    cursor.execute(query, (user_id,))
+    result = cursor.fetchone()
+    cursor.close()
     return result
 
 
-def getWeightData(user_id):
-    with get_db_connection() as db:
-        cursor = db.cursor(dictionary=True)
-        query = "SELECT * FROM weightGoals WHERE userID = %s ORDER BY registerDate DESC LIMIT 1;"
-        cursor.execute(query, (user_id,))
-        result = cursor.fetchone()
-        cursor.close()
+def getWeightData(user_id, db):
+    cursor = db.cursor(dictionary=True)
+    query = 'SELECT * FROM weightGoals WHERE userID = %s ORDER BY registerDate DESC LIMIT 1;'
+    cursor.execute(query, (user_id,))
+    result = cursor.fetchone()
+    cursor.close()
     return result
 
-def calculate_calories(user_id:int):
-    userData = getUserData(user_id)
-    print("1")
-    weightGoals = getWeightData(user_id)
-    print("2")
-    if not userData:
-        return({"error":f"No user found with ID {user_id}"}, 404)
 
-    response = chain.invoke({
-        "height": userData["height"],
-        "weight": weightGoals["weight"],
-        "age": userData["age"],
-        "waist": userData["waist"],
-        "neck": userData["neck"],
-        "hips": userData["hips"],
-        "gender": userData["gender"],
-        "goalWeight": weightGoals["goalWeight"],
-        "durationToAchieveGoalWeight": weightGoals["durationToAchieveGoalWeight"],
-        "activityLevel": userData["activityLevel"],
-        "objective": userData["objective"],
-        "bmrMifflin": userData["bmrMifflin"], 
-        "bmrHarrisBenedict": userData["bmrHarrisBenedict"],
-        "bmrKatchMcArdle": userData["bmrKatchMcArdle"], 
-        "tdeeMifflin": userData["tdeeMifflin"], 
-        "tdeeHarrisBenedict": userData["tdeeHarrisBenedict"], 
-        "tdeeKatchMcArdle": userData["tdeeKatchMcArdle"],
-        "bodyFat": userData["bodyFat"], 
-        "totalWeightLoss": userData["totalWeightLoss"], 
-        "weeklyDeficit": userData["weeklyDeficit"], 
-        "dailyCalorieIntakeMifflin": userData["dailyCalorieIntakeMifflin"],
-        "dailyCalorieIntakeHarrisBenedict": userData["dailyCalorieIntakeHarrisBenedict"], 
-        "dailyCalorieIntakeKatchMcArdle": userData["dailyCalorieIntakeKatchMcArdle"]
-    })
-    return response["text"]
+def calculate_calories(user_id: int):
+    with get_db_connection() as db:
+        user_data = getUserData(user_id=user_id, db=db)
+        weight_goals = getWeightData(user_id=user_id, db=db)
+
+        if not user_data:
+            return ({'error': f'No user found with ID {user_id}'}, 404)
+
+        response = chain.invoke(
+            {
+                'height': user_data['height'],
+                'weight': weight_goals['weight'],
+                'age': user_data['age'],
+                'waist': user_data['waist'],
+                'neck': user_data['neck'],
+                'hips': user_data['hips'],
+                'gender': user_data['gender'],
+                'goalWeight': weight_goals['goalWeight'],
+                'durationToAchieveGoalWeight': weight_goals[
+                    'durationToAchieveGoalWeight'
+                ],
+                'activityLevel': user_data['activityLevel'],
+                'objective': user_data['objective'],
+                'bmrMifflin': user_data['bmrMifflin'],
+                'bmrHarrisBenedict': user_data['bmrHarrisBenedict'],
+                'bmrKatchMcArdle': user_data['bmrKatchMcArdle'],
+                'tdeeMifflin': user_data['tdeeMifflin'],
+                'tdeeHarrisBenedict': user_data['tdeeHarrisBenedict'],
+                'tdeeKatchMcArdle': user_data['tdeeKatchMcArdle'],
+                'bodyFat': user_data['bodyFat'],
+                'totalWeightLoss': user_data['totalWeightLoss'],
+                'weeklyDeficit': user_data['weeklyDeficit'],
+                'dailyCalorieIntakeMifflin': user_data[
+                    'dailyCalorieIntakeMifflin'
+                ],
+                'dailyCalorieIntakeHarrisBenedict': user_data[
+                    'dailyCalorieIntakeHarrisBenedict'
+                ],
+                'dailyCalorieIntakeKatchMcArdle': user_data[
+                    'dailyCalorieIntakeKatchMcArdle'
+                ],
+            }
+        )
+    return response['text']

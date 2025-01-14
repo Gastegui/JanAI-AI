@@ -10,3 +10,4 @@ upload/*
 .vscode/
 .pytest_cache
 .coverage
+chroma/
