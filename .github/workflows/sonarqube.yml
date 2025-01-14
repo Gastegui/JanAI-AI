@@ -23,9 +23,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Install pytorch
+      - name: Install pytorch and chroma
         run: |
           pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu124
+          pip3 install -qU "langchain-chroma>=0.1.2"
 
       - name: Set correct permissions for upload folder
         run: |
