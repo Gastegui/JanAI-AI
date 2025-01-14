@@ -46,7 +46,7 @@ Answer the question based on the above context: {input}
 _ = load_dotenv(find_dotenv())
 
 
-def getUserFood(username, db):
+def get_user_food(username, db):
     cursor = db.cursor(dictionary=True)
     query = 'SELECT fo.foodName, f.consumptionDate, f.meal FROM foodList f JOIN food fo ON f.foodID=fo.foodID JOIN userData u ON f.userID=u.userID WHERE u.username = %s AND f.consumptionDate >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)'
     cursor.execute(query, (username,))
@@ -55,7 +55,7 @@ def getUserFood(username, db):
     return result
 
 
-def getHeight(username, db):
+def get_height(username, db):
     cursor = db.cursor(dictionary=True)
     query = 'SELECT height FROM userData WHERE username = %s'
     cursor.execute(query, (username,))
@@ -64,7 +64,7 @@ def getHeight(username, db):
     return result
 
 
-def getWeight(username, db):
+def get_weight(username, db):
     cursor = db.cursor(dictionary=True)
     query = 'SELECT weight FROM weightgoals w JOIN userData u ON w.userID=u.userID WHERE username = %s'
     cursor.execute(query, (username,))
@@ -73,7 +73,7 @@ def getWeight(username, db):
     return result
 
 
-def getAge(username, db):
+def get_age(username, db):
     cursor = db.cursor(dictionary=True)
     query = 'SELECT age FROM userData WHERE username = %s'
     cursor.execute(query, (username,))
@@ -82,7 +82,7 @@ def getAge(username, db):
     return result
 
 
-def getActivityLevel(username, db):
+def get_activity_level(username, db):
     cursor = db.cursor(dictionary=True)
     query = 'SELECT activityLevel FROM userData WHERE username = %s'
     cursor.execute(query, (username,))
@@ -91,7 +91,7 @@ def getActivityLevel(username, db):
     return result
 
 
-def getGoal(username, db):
+def get_goal(username, db):
     cursor = db.cursor(dictionary=True)
     query = 'SELECT objective FROM userData WHERE username = %s'
     cursor.execute(query, (username,))
@@ -100,7 +100,7 @@ def getGoal(username, db):
     return result
 
 
-def getCampains(db):
+def get_campaigns(db):
     cursor = db.cursor(dictionary=True)
     query = 'SELECT * FROM campaign'
     cursor.execute(query)
@@ -109,7 +109,7 @@ def getCampains(db):
     return result
 
 
-def getFood(db):
+def get_food(db):
     cursor = db.cursor(dictionary=True)
     query = 'SELECT * FROM food'
     cursor.execute(query)
@@ -118,7 +118,7 @@ def getFood(db):
     return result
 
 
-def getUser(username, db):
+def get_user(username, db):
     cursor = db.cursor(dictionary=True)
     query = 'SELECT uname FROM userdata where username = %s'
     cursor.execute(query, (username,))
@@ -127,7 +127,7 @@ def getUser(username, db):
     return result
 
 
-def getUserRestrictions(username, db):
+def get_user_restrictions(username, db):
     cursor = db.cursor(dictionary=True)
     query = 'SELECT r.restrictedName, fg.groupName, fc.className, ft.typeName, i.ingName from restrictions r JOIN foodGroup fg ON fg.groupID=r.groupID JOIN foodClass fc ON fc.classID=r.classID JOIN foodType ft ON ft.typeID=r.typeID JOIN ingredients i ON i.ingredientID=r.ingredientID JOIN userData u ON r.userID=u.userID where u.username = %s'
     cursor.execute(query, (username,))
@@ -143,7 +143,7 @@ def get_embedding_function():
 
 def create_chain():
     embedding_function = get_embedding_function()
-    vectorStore = Chroma(
+    vector_store = Chroma(
         persist_directory=CHROMA_PATH, embedding_function=embedding_function
     )
 
@@ -155,7 +155,7 @@ def create_chain():
 
     chain = create_stuff_documents_chain(llm=llm, prompt=prompt)
 
-    retriever = vectorStore.as_retriever(search_kwargs={'k': 5})
+    retriever = vector_store.as_retriever(search_kwargs={'k': 5})
 
     retrieval_chain = create_retrieval_chain(retriever, chain)
 
@@ -172,7 +172,7 @@ def process_chat(
     height,
     weight,
     age,
-    activityLevel,
+    activity_level,
     goal,
     campains,
 ):
@@ -186,7 +186,7 @@ def process_chat(
             'height': height,
             'weight': weight,
             'age': age,
-            'activityLevel': activityLevel,
+            'activityLevel': activity_level,
             'goal': goal,
             'campains': campains,
         }
@@ -202,16 +202,16 @@ def chat(data):
         print('User input: ', user_input)
         print('Username: ', username)
 
-        user_food = getUserFood(username=username, db=db)
-        food = getFood(db=db)
-        user = getUser(username=username, db=db)
-        user_restrictions = getUserRestrictions(username=username, db=db)
-        height = getHeight(username=username, db=db)
-        weight = getWeight(username=username, db=db)
-        age = getAge(username=username, db=db)
-        activityLevel = getActivityLevel(username=username, db=db)
-        goal = getGoal(username=username, db=db)
-        campains = getCampains(db=db)
+        user_food =  get_user_food(username=username, db=db)
+        food = get_food(db=db)
+        user = get_user(username=username, db=db)
+        user_restrictions = get_user_restrictions(username=username, db=db)
+        height =  get_height(username=username, db=db)
+        weight = get_weight(username=username, db=db)
+        age = get_age(username=username, db=db)
+        activity_level = get_activity_level(username=username, db=db)
+        goal = get_goal(username=username, db=db)
+        campains = get_campaigns(db=db)
 
         chain = create_chain()
 
@@ -225,7 +225,7 @@ def chat(data):
             height=height,
             weight=weight,
             age=age,
-            activityLevel=activityLevel,
+            activity_level=activity_level,
             goal=goal,
             campains=campains,
         )

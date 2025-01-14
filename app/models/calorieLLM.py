@@ -89,7 +89,7 @@ prompt = PromptTemplate(
 chain = LLMChain(llm=llm, prompt=prompt)
 
 
-def getUserData(user_id, db):
+def get_user_data(user_id, db):
     cursor = db.cursor(dictionary=True)
     query = 'SELECT height, age, waist, neck, hips, gender, activityLevel, objective, bmrMifflin, bmrHarrisBenedict, bmrKatchMcArdle, tdeeMifflin, tdeeHarrisBenedict, tdeeKatchMcArdle, bodyFat, totalWeightLoss, weeklyDeficit, dailyCalorieIntakeMifflin, dailyCalorieIntakeHarrisBenedict, dailyCalorieIntakeKatchMcArdle FROM userData WHERE userID = %s;'
     cursor.execute(query, (user_id,))
@@ -98,7 +98,7 @@ def getUserData(user_id, db):
     return result
 
 
-def getWeightData(user_id, db):
+def get_weight_data(user_id, db):
     cursor = db.cursor(dictionary=True)
     query = 'SELECT * FROM weightGoals WHERE userID = %s ORDER BY registerDate DESC LIMIT 1;'
     cursor.execute(query, (user_id,))
@@ -109,8 +109,8 @@ def getWeightData(user_id, db):
 
 def calculate_calories(user_id: int):
     with get_db_connection() as db:
-        user_data = getUserData(user_id=user_id, db=db)
-        weight_goals = getWeightData(user_id=user_id, db=db)
+        user_data = get_user_data(user_id=user_id, db=db)
+        weight_goals = get_weight_data(user_id=user_id, db=db)
 
         if not user_data:
             return ({'error': f'No user found with ID {user_id}'}, 404)
