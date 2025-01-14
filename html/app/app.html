@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.5">
+<title>app.app API documentation</title>
+<meta name="description" content="Main super module for serving API with AI models.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>app.app</code></h1>
+</header>
+<section id="section-intro">
+<p>Main super module for serving API with AI models.</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="app.app.handle_bad_request"><code class="name flex">
+<span>def <span class="ident">handle_bad_request</span></span>(<span>error)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@app.errorhandler(BadRequest)
+def handle_bad_request(error):
+    &#34;&#34;&#34;
+    Handles the exception for bad request.
+
+    Args:
+        error (BadRequest): The exception raised for a bad request.
+
+    Returns:
+        tuple: JSON response with the error message and HTTP status code 400 (Bad Request).
+    &#34;&#34;&#34;
+    return jsonify({&#39;error&#39;: &#39;Bad Request: &#39; + str(error)}), 400</code></pre>
+</details>
+<div class="desc"><p>Handles the exception for bad request.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>error</code></strong> :&ensp;<code>BadRequest</code></dt>
+<dd>The exception raised for a bad request.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>tuple</code></dt>
+<dd>JSON response with the error message and HTTP status code 400 (Bad Request).</dd>
+</dl></div>
+</dd>
+<dt id="app.app.handle_generic_exception"><code class="name flex">
+<span>def <span class="ident">handle_generic_exception</span></span>(<span>error)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@app.errorhandler(Exception)
+def handle_generic_exception(error):
+    &#34;&#34;&#34;
+    Handles generic exceptions that are not caught by other error handlers.
+
+    Args:
+        error (Exception): The exception that was raised.
+
+    Returns:
+        tuple: JSON response with a generic error message and HTTP status code 500 (Internal Server Error).
+    &#34;&#34;&#34;
+    return (
+        jsonify(
+            {&#39;error&#39;: &#39;An unexpected error occurred&#39;, &#39;details&#39;: str(error)}
+        ),
+        500,
+    )</code></pre>
+</details>
+<div class="desc"><p>Handles generic exceptions that are not caught by other error handlers.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>error</code></strong> :&ensp;<code>Exception</code></dt>
+<dd>The exception that was raised.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>tuple</code></dt>
+<dd>JSON response with a generic error message and HTTP status code 500 (Internal Server Error).</dd>
+</dl></div>
+</dd>
+<dt id="app.app.handle_unsupported_content_type"><code class="name flex">
+<span>def <span class="ident">handle_unsupported_content_type</span></span>(<span>error)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@app.errorhandler(UnsupportedContentTypeError)
+def handle_unsupported_content_type(error):
+    &#34;&#34;&#34;
+    Handles the exception for unsupported content types.
+
+    Args:
+        error (UnsupportedContentTypeError): The exception raised when an unsupported content type is encountered.
+
+    Returns:
+        tuple: JSON response with the error message and HTTP status code 415 (Unsupported Media Type).
+    &#34;&#34;&#34;
+    return jsonify({&#39;error&#39;: str(error)}), 415</code></pre>
+</details>
+<div class="desc"><p>Handles the exception for unsupported content types.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>error</code></strong> :&ensp;<code>UnsupportedContentTypeError</code></dt>
+<dd>The exception raised when an unsupported content type is encountered.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>tuple</code></dt>
+<dd>JSON response with the error message and HTTP status code 415 (Unsupported Media Type).</dd>
+</dl></div>
+</dd>
+<dt id="app.app.handle_user_not_found"><code class="name flex">
+<span>def <span class="ident">handle_user_not_found</span></span>(<span>error)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@app.errorhandler(UserNotFoundError)
+def handle_user_not_found(error):
+    &#34;&#34;&#34;
+    Handles the exception when a user is not found.
+
+    Args:
+        error (UserNotFoundError): The exception raised when a user is not found.
+
+    Returns:
+        tuple: JSON response with the error message and HTTP status code 404 (Not Found).
+    &#34;&#34;&#34;
+    return jsonify({&#39;error&#39;: str(error)}), 404</code></pre>
+</details>
+<div class="desc"><p>Handles the exception when a user is not found.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>error</code></strong> :&ensp;<code>UserNotFoundError</code></dt>
+<dd>The exception raised when a user is not found.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>tuple</code></dt>
+<dd>JSON response with the error message and HTTP status code 404 (Not Found).</dd>
+</dl></div>
+</dd>
+<dt id="app.app.nutri_chat"><code class="name flex">
+<span>def <span class="ident">nutri_chat</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@app.route(&#39;/chat&#39;, methods=[&#39;POST&#39;])
+def nutri_chat():
+    &#34;&#34;&#34;
+    Processes a given prompt from user to the chat-bot LLM and returns its recommendations.
+
+    Returns:
+        dict: A JSON response containing the LLM&#39;s suggestions.
+    &#34;&#34;&#34;
+    data = request.get_json()
+
+    response = recomendationsLLM.chat(data)
+    return jsonify({&#39;response&#39;: response})</code></pre>
+</details>
+<div class="desc"><p>Processes a given prompt from user to the chat-bot LLM and returns its recommendations.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>dict</code></dt>
+<dd>A JSON response containing the LLM's suggestions.</dd>
+</dl></div>
+</dd>
+<dt id="app.app.process_image_prediction"><code class="name flex">
+<span>def <span class="ident">process_image_prediction</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@app.route(&#39;/image_prediction&#39;, methods=[&#39;POST&#39;])
+def process_image_prediction():
+    &#34;&#34;&#34;
+    Processes an uploaded image for prediction of food class.
+
+    Args:
+        request (Flask Request): The Flask request object containing the image data in binary format.
+
+    Returns:
+        dict: A JSON response containing the predicted class, confidence, and all predictions.
+
+    Raises:
+        BadRequest: If no image file is found in the request.
+        InternalServerError: If an unexpected error occurs during image processing.
+    &#34;&#34;&#34;
+    file_path = &#39;&#39;
+    try:
+        if not request.data:
+            raise BadRequest(&#39;No image file found in the request&#39;)
+
+        filename = &#39;&#39;
+        filename += str(random.randrange(0, 100))
+        filename += &#39;.jpg&#39;
+
+        while os.path.exists(
+            &#39;/&#39;.join([app.config[&#39;UPLOAD_FOLDER&#39;], filename])
+        ):
+            filename = &#39;&#39;
+            filename += str(random.randrange(0, 100))
+            filename += &#39;.jpg&#39;
+
+        # Ensure the directory exists
+        os.makedirs(app.config[&#39;UPLOAD_FOLDER&#39;], exist_ok=True)
+
+        # Save the uploaded file
+        with open(
+            &#39;/&#39;.join([app.config[&#39;UPLOAD_FOLDER&#39;], filename]), &#39;wb&#39;
+        ) as f:
+            f.write(decodebytes(request.data))
+
+        # Secure the filename and save the file temporarily
+        file_path = &#39;/&#39;.join([app.config[&#39;UPLOAD_FOLDER&#39;], filename])
+
+        # Use the ImagePredictor to make a prediction
+        image_model = ImagePredictor()
+        prediction = image_model.predict_image(file_path)
+
+        image_output = ResponseDlm(
+            predicted_class=prediction.get(&#39;predicted_class&#39;),
+            confidence=prediction.get(&#39;confidence&#39;),
+            all_predictions=prediction.get(&#39;all_predictions&#39;),
+        )
+
+        return image_output.model_dump_json(), 200
+
+    finally:
+        # Ensure the file is removed, even if an exception occurs
+        if os.path.exists(file_path):
+            os.remove(file_path)</code></pre>
+</details>
+<div class="desc"><p>Processes an uploaded image for prediction of food class.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>request</code></strong> :&ensp;<code>Flask Request</code></dt>
+<dd>The Flask request object containing the image data in binary format.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>dict</code></dt>
+<dd>A JSON response containing the predicted class, confidence, and all predictions.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>BadRequest</code></dt>
+<dd>If no image file is found in the request.</dd>
+<dt><code>InternalServerError</code></dt>
+<dd>If an unexpected error occurs during image processing.</dd>
+</dl></div>
+</dd>
+<dt id="app.app.process_intake_prediction"><code class="name flex">
+<span>def <span class="ident">process_intake_prediction</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@app.route(&#39;/intake_prediction&#39;, methods=[&#39;POST&#39;])
+def process_intake_prediction():
+    &#34;&#34;&#34;
+    Processes a user’s biometric data to predict calorie intake.
+
+    Args:
+        request_json (dict): The JSON body of the request containing the `userID`.
+
+    Returns:
+        dict: A JSON response containing the predicted calorie intake.
+
+    Raises:
+        UserNotFoundError: If the user is not found in the system.
+        UnsupportedContentTypeError: If the content type of the request is not &#39;application/json&#39;.
+        InternalServerError: If an unexpected error occurs during processing.
+    &#34;&#34;&#34;
+    try:
+        request_json = validate_content_type(request)
+        llm_input = RequestLlm(userID=request_json[&#39;userID&#39;])
+
+        intake_prediction = calorieLLM.calculate_calories(llm_input.userID)
+        return ResponseLlm(
+            calorie_prediction=intake_prediction
+        ).model_dump_json()
+    except (UserNotFoundError, UnsupportedContentTypeError) as e:
+        raise e
+    except Exception as e:
+        raise InternalServerError(
+            f&#39;Error processing intake prediction: {str(e)}&#39;
+        ) from e</code></pre>
+</details>
+<div class="desc"><p>Processes a user’s biometric data to predict calorie intake.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>request_json</code></strong> :&ensp;<code>dict</code></dt>
+<dd>The JSON body of the request containing the <code>userID</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>dict</code></dt>
+<dd>A JSON response containing the predicted calorie intake.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>UserNotFoundError</code></dt>
+<dd>If the user is not found in the system.</dd>
+<dt><code>UnsupportedContentTypeError</code></dt>
+<dd>If the content type of the request is not 'application/json'.</dd>
+<dt><code>InternalServerError</code></dt>
+<dd>If an unexpected error occurs during processing.</dd>
+</dl></div>
+</dd>
+<dt id="app.app.validate_content_type"><code class="name flex">
+<span>def <span class="ident">validate_content_type</span></span>(<span>validate_request)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def validate_content_type(validate_request):
+    &#34;&#34;&#34;
+    Helper method for validating application content types.
+
+    Args:
+        validate_request: The Flask request object.
+
+    Returns:
+        The JSON body of the request if the content type is valid.
+
+    Raises:
+        UnsupportedContentTypeError: If the content type is not &#39;application/json&#39;.
+    &#34;&#34;&#34;
+    content_type = validate_request.headers.get(&#39;Content-Type&#39;)
+    if content_type == &#39;application/json&#39;:
+        return validate_request.json
+    else:
+        raise UnsupportedContentTypeError(
+            f&#39;Content-Type {content_type} is not supported!&#39;
+        )</code></pre>
+</details>
+<div class="desc"><p>Helper method for validating application content types.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>validate_request</code></strong></dt>
+<dd>The Flask request object.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>The JSON body of the request if the content type is valid.</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>UnsupportedContentTypeError</code></dt>
+<dd>If the content type is not 'application/json'.</dd>
+</dl></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="app" href="index.html">app</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="app.app.handle_bad_request" href="#app.app.handle_bad_request">handle_bad_request</a></code></li>
+<li><code><a title="app.app.handle_generic_exception" href="#app.app.handle_generic_exception">handle_generic_exception</a></code></li>
+<li><code><a title="app.app.handle_unsupported_content_type" href="#app.app.handle_unsupported_content_type">handle_unsupported_content_type</a></code></li>
+<li><code><a title="app.app.handle_user_not_found" href="#app.app.handle_user_not_found">handle_user_not_found</a></code></li>
+<li><code><a title="app.app.nutri_chat" href="#app.app.nutri_chat">nutri_chat</a></code></li>
+<li><code><a title="app.app.process_image_prediction" href="#app.app.process_image_prediction">process_image_prediction</a></code></li>
+<li><code><a title="app.app.process_intake_prediction" href="#app.app.process_intake_prediction">process_intake_prediction</a></code></li>
+<li><code><a title="app.app.validate_content_type" href="#app.app.validate_content_type">validate_content_type</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.5</a>.</p>
+</footer>
+</body>
+</html>

@@ -1,3 +1,6 @@
+"""
+Module for interfacing with Ollama LLM for the purposes of predicting calorie intake
+"""
 import os
 
 import mysql.connector

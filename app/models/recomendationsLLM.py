@@ -1,10 +1,13 @@
+"""
+Module for interfacing with Ollama LLM for the purposes of providing chatbot functionality
+"""
 import os
 
 import mysql.connector
 from dotenv import find_dotenv, load_dotenv
-from langchain.chains import LLMChain, create_retrieval_chain
+from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain.prompts import ChatPromptTemplate, PromptTemplate
+from langchain.prompts import ChatPromptTemplate
 from langchain_chroma import Chroma
 from langchain_ollama import OllamaEmbeddings, OllamaLLM
 

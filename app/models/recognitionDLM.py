@@ -1,5 +1,5 @@
 """
-Module file dedicated to storing model classes
+Module dedicated for the preprocessing and interfacing with DLM Food Recognition model
 """
 import os
 

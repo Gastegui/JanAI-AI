@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.5">
+<title>app.models.recognitionDLM API documentation</title>
+<meta name="description" content="Module dedicated for the preprocessing and interfacing with DLM Food Recognition model">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>app.models.recognitionDLM</code></h1>
+</header>
+<section id="section-intro">
+<p>Module dedicated for the preprocessing and interfacing with DLM Food Recognition model</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="app.models.recognitionDLM.preprocess"><code class="name flex">
+<span>def <span class="ident">preprocess</span></span>(<span>org_path: str, train: bool)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def preprocess(org_path: str, train: bool):
+    &#34;&#34;&#34;
+    Method for preprocessing ...
+    &#34;&#34;&#34;
+    arr = org_path.split(&#39;/&#39;)
+    dst_start = &#39;/&#39;.join(arr[: arr.index(&#39;Datasets&#39;) + 1])
+    dst = &#39;&#39;
+    if train:
+        dst = (
+            dst_start + &#39;/Cleaned/train/&#39; + &#39;/&#39;.join(org_path.split(&#39;/&#39;)[-2:])
+        )
+    else:
+        dst = dst_start + &#39;/Cleaned/test/&#39; + &#39;/&#39;.join(org_path.split(&#39;/&#39;)[-2:])
+
+    if not (dst.endswith(&#39;.jpg&#39;) or dst.endswith(&#39;.jpeg&#39;)):
+        dst = &#39;.&#39;.join(dst.split(&#39;.&#39;)[:-1]) + &#39;.jpg&#39;
+
+    if os.path.exists(dst):
+        print(&#39;File already preprocessed&#39;)
+        return
+
+    image = Image.open(org_path)
+    image = image.resize((IMG_SIZE, IMG_SIZE), Image.Resampling.HAMMING)
+
+    if image.mode in (
+        &#39;RGBA&#39;,
+        &#39;LA&#39;,
+    ):   # If the image has transparency, get rid of it
+        background = Image.new(
+            &#39;RGB&#39;, image.size, (255, 255, 255)
+        )   # Create a white image to act as the background
+        background.paste(
+            image, mask=image.split()[3]
+        )   # Apply this background where there is transparency on the image
+        image = background
+
+    os.makedirs(&#39;/&#39;.join(dst.split(&#39;/&#39;)[:-1]), exist_ok=True)
+    image.save(dst, &#39;JPEG&#39;)</code></pre>
+</details>
+<div class="desc"><p>Method for preprocessing &hellip;</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="app.models.recognitionDLM.Autoencoder"><code class="flex name class">
+<span>class <span class="ident">Autoencoder</span></span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Autoencoder(nn.Module):
+    &#34;&#34;&#34;
+    Class for ...
+    &#34;&#34;&#34;
+
+    def __init__(self):
+        super(Autoencoder, self).__init__()
+
+        # Autoencoder stuff
+        dropout = 0.3
+        convolutional_kernel = 4
+
+        # Encoder
+        self.encoder = nn.Sequential(
+            nn.Conv2d(
+                3, 64, kernel_size=convolutional_kernel, stride=2, padding=1
+            ),
+            nn.LazyBatchNorm2d(),
+            nn.ReLU(),
+            # nn.MaxPool2d(kernel_size=max_pool_kernel),
+            nn.Dropout2d(p=dropout),
+            nn.Conv2d(
+                64, 128, kernel_size=convolutional_kernel, stride=2, padding=1
+            ),
+            nn.LazyBatchNorm2d(),
+            nn.ReLU(),
+            # nn.MaxPool2d(kernel_size=max_pool_kernel),
+            nn.Dropout2d(p=dropout),
+            nn.Conv2d(
+                128, 256, kernel_size=convolutional_kernel, stride=2, padding=1
+            ),
+            nn.LazyBatchNorm2d(),
+            nn.ReLU(),
+            # nn.MaxPool2d(kernel_size=max_pool_kernel),
+            nn.Dropout2d(p=dropout),
+            nn.Conv2d(
+                256, 512, kernel_size=convolutional_kernel, stride=2, padding=1
+            ),
+            nn.LazyBatchNorm2d(),
+            nn.ReLU(),
+            # nn.MaxPool2d(kernel_size=max_pool_kernel),
+            nn.Dropout2d(p=dropout),
+        )
+
+        # Decoder
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose2d(
+                512, 256, kernel_size=convolutional_kernel, stride=2, padding=1
+            ),
+            nn.LazyBatchNorm2d(),
+            nn.ReLU(),
+            nn.Dropout2d(p=dropout),
+            nn.ConvTranspose2d(
+                256, 128, kernel_size=convolutional_kernel, stride=2, padding=1
+            ),
+            nn.LazyBatchNorm2d(),
+            nn.ReLU(),
+            nn.Dropout2d(p=dropout),
+            nn.ConvTranspose2d(
+                128, 64, kernel_size=convolutional_kernel, stride=2, padding=1
+            ),
+            nn.LazyBatchNorm2d(),
+            nn.ReLU(),
+            nn.Dropout2d(p=dropout),
+            nn.ConvTranspose2d(
+                64, 3, kernel_size=convolutional_kernel, stride=2, padding=1
+            ),
+            nn.LazyBatchNorm2d(),
+            nn.Sigmoid(),  # Normalización de salida entre 0 y 1
+        )
+
+    def forward(self, x):
+        encoded = self.encoder(x)
+        decoded = self.decoder(encoded)
+        return encoded, decoded</code></pre>
+</details>
+<div class="desc"><p>Class for &hellip;</p>
+<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="app.models.recognitionDLM.Autoencoder.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, x):
+    encoded = self.encoder(x)
+    decoded = self.decoder(encoded)
+    return encoded, decoded</code></pre>
+</details>
+<div class="desc"><p>Define the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+</dd>
+</dl>
+</dd>
+<dt id="app.models.recognitionDLM.Classifier"><code class="flex name class">
+<span>class <span class="ident">Classifier</span></span>
+<span>(</span><span>encoder)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Classifier(nn.Module):
+    def __init__(self, encoder):
+        super(Classifier, self).__init__()
+        self.encoder = encoder
+        for param in self.encoder.parameters():
+            param.requires_grad = False
+
+        for param in self.encoder[12].parameters():
+            param.requires_grad = True
+
+        for param in self.encoder[13].parameters():
+            param.requires_grad = True
+
+        self.fc = nn.Sequential(
+            nn.Flatten(),
+            # nn.Linear(512 * 14 * 14, 512),  # Ajusta según la salida del encoder
+            # nn.ReLU(),
+            nn.Linear(
+                512 * 14 * 14, 101
+            ),  # Supongamos que tienes 101 clases de platos
+        )
+
+    def forward(self, x):
+        x = self.encoder(x)  # Congela el encoder si ya está preentrenado
+        x = self.fc(x)
+        return x</code></pre>
+</details>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self) -&gt; None:
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As per the example above, an <code>__init__()</code> call to the parent class
+must be made before assignment on the child.</p>
+</div>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="app.models.recognitionDLM.Classifier.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, x):
+    x = self.encoder(x)  # Congela el encoder si ya está preentrenado
+    x = self.fc(x)
+    return x</code></pre>
+</details>
+<div class="desc"><p>Define the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+</dd>
+</dl>
+</dd>
+<dt id="app.models.recognitionDLM.ImagePredictor"><code class="flex name class">
+<span>class <span class="ident">ImagePredictor</span></span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ImagePredictor:
+    def __init__(self):
+        # Initialize a new model instance
+        self.encoder = Autoencoder().encoder
+
+        print(&#39;1&#39;)
+
+        self.encoder.load_state_dict(
+            torch.load(os.getenv(&#39;MODEL_ENCODER_PATH&#39;), weights_only=True)
+        )
+        self.model = Classifier(encoder=self.encoder)
+        # Load the saved state dict
+
+        print(&#39;2&#39;)
+
+        self.model.load_state_dict(
+            torch.load(os.getenv(&#39;MODEL_PATH&#39;), weights_only=True)
+        )
+        print(&#39;3&#39;)
+        self.model.eval()  # Set to evaluation mode
+        self.device = &#39;cuda&#39; if torch.cuda.is_available() else &#39;cpu&#39;
+        self.model.to(self.device)
+
+        # Store class names
+        self.class_names = [
+            &#39;apple_pie&#39;,
+            &#39;baby_back_ribs&#39;,
+            &#39;baklava&#39;,
+            &#39;beef_carpaccio&#39;,
+            &#39;beef_tartare&#39;,
+            &#39;beet_salad&#39;,
+            &#39;beignets&#39;,
+            &#39;bibimbap&#39;,
+            &#39;bread_pudding&#39;,
+            &#39;breakfast_burrito&#39;,
+            &#39;bruschetta&#39;,
+            &#39;caesar_salad&#39;,
+            &#39;cannoli&#39;,
+            &#39;caprese_salad&#39;,
+            &#39;carrot_cake&#39;,
+            &#39;ceviche&#39;,
+            &#39;cheese_plate&#39;,
+            &#39;cheesecake&#39;,
+            &#39;chicken_curry&#39;,
+            &#39;chicken_quesadilla&#39;,
+            &#39;chicken_wings&#39;,
+            &#39;chocolate_cake&#39;,
+            &#39;chocolate_mousse&#39;,
+            &#39;churros&#39;,
+            &#39;clam_chowder&#39;,
+            &#39;club_sandwich&#39;,
+            &#39;crab_cakes&#39;,
+            &#39;creme_brulee&#39;,
+            &#39;croque_madame&#39;,
+            &#39;cup_cakes&#39;,
+            &#39;deviled_eggs&#39;,
+            &#39;donuts&#39;,
+            &#39;dumplings&#39;,
+            &#39;edamame&#39;,
+            &#39;eggs_benedict&#39;,
+            &#39;escargots&#39;,
+            &#39;falafel&#39;,
+            &#39;filet_mignon&#39;,
+            &#39;fish_and_chips&#39;,
+            &#39;foie_gras&#39;,
+            &#39;french_fries&#39;,
+            &#39;french_onion_soup&#39;,
+            &#39;french_toast&#39;,
+            &#39;fried_calamari&#39;,
+            &#39;fried_rice&#39;,
+            &#39;frozen_yogurt&#39;,
+            &#39;garlic_bread&#39;,
+            &#39;gnocchi&#39;,
+            &#39;greek_salad&#39;,
+            &#39;grilled_cheese_sandwich&#39;,
+            &#39;grilled_salmon&#39;,
+            &#39;guacamole&#39;,
+            &#39;gyoza&#39;,
+            &#39;hamburger&#39;,
+            &#39;hot_and_sour_soup&#39;,
+            &#39;hot_dog&#39;,
+            &#39;huevos_rancheros&#39;,
+            &#39;hummus&#39;,
+            &#39;ice_cream&#39;,
+            &#39;lasagna&#39;,
+            &#39;lobster_bisque&#39;,
+            &#39;lobster_roll_sandwich&#39;,
+            &#39;macaroni_and_cheese&#39;,
+            &#39;macarons&#39;,
+            &#39;miso_soup&#39;,
+            &#39;mussels&#39;,
+            &#39;nachos&#39;,
+            &#39;omelette&#39;,
+            &#39;onion_rings&#39;,
+            &#39;oysters&#39;,
+            &#39;pad_thai&#39;,
+            &#39;paella&#39;,
+            &#39;pancakes&#39;,
+            &#39;panna_cotta&#39;,
+            &#39;peking_duck&#39;,
+            &#39;pho&#39;,
+            &#39;pizza&#39;,
+            &#39;pork_chop&#39;,
+            &#39;poutine&#39;,
+            &#39;prime_rib&#39;,
+            &#39;pulled_pork_sandwich&#39;,
+            &#39;ramen&#39;,
+            &#39;ravioli&#39;,
+            &#39;red_velvet_cake&#39;,
+            &#39;risotto&#39;,
+            &#39;samosa&#39;,
+            &#39;sashimi&#39;,
+            &#39;scallops&#39;,
+            &#39;seaweed_salad&#39;,
+            &#39;shrimp_and_grits&#39;,
+            &#39;spaghetti_bolognese&#39;,
+            &#39;spaghetti_carbonara&#39;,
+            &#39;spring_rolls&#39;,
+            &#39;steak&#39;,
+            &#39;strawberry_shortcake&#39;,
+            &#39;sushi&#39;,
+            &#39;tacos&#39;,
+            &#39;takoyaki&#39;,
+            &#39;tiramisu&#39;,
+            &#39;tuna_tartare&#39;,
+            &#39;waffles&#39;,
+        ]
+
+        # Define the same transforms used during training
+        self.transform = transforms.Compose(
+            [
+                transforms.Resize((IMG_SIZE, IMG_SIZE)),
+                transforms.ToTensor(),
+                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+            ]
+        )
+
+    def predict_image(self, image_path):
+        # Load and preprocess the image
+        image = Image.open(image_path).convert(&#39;RGB&#39;)
+        image_tensor = self.transform(image).unsqueeze(
+            0
+        )  # Add batch dimension
+        image_tensor = image_tensor.to(self.device)
+
+        # Make prediction
+        with torch.no_grad():
+            outputs = self.model(image_tensor)
+            probabilities = torch.nn.functional.softmax(outputs, dim=1)
+            predicted_class_idx = torch.argmax(probabilities, dim=1).item()
+            confidence = probabilities[0][predicted_class_idx].item()
+
+            # Get all probabilities as a list
+            all_probs = probabilities[0].cpu().numpy()
+
+            # Get predicted class name
+            predicted_class_name = self.class_names[predicted_class_idx]
+
+            # Create a list of (class_name, probability) tuples
+            class_probabilities = [
+                (class_name, float(prob))
+                for class_name, prob in zip(self.class_names, all_probs)
+            ]
+            # Sort by probability in descending order
+            class_probabilities.sort(key=lambda x: x[1], reverse=True)
+        return {
+            &#39;predicted_class&#39;: predicted_class_name,
+            &#39;confidence&#39;: float(confidence),
+            &#39;all_predictions&#39;: class_probabilities,
+        }
+
+    def predict_batch(self, image_paths):
+        # Process multiple images at once
+        batch_tensors = []
+        for path in image_paths:
+            image = Image.open(path).convert(&#39;RGB&#39;)
+            tensor = self.transform(image)
+            batch_tensors.append(tensor)
+
+        batch = torch.stack(batch_tensors).to(self.device)
+
+        with torch.no_grad():
+            outputs = self.model(batch)
+            probabilities = torch.nn.functional.softmax(outputs, dim=1)
+            predicted_indices = torch.argmax(probabilities, dim=1).tolist()
+            confidences = [
+                probabilities[i][pred].item()
+                for i, pred in enumerate(predicted_indices)
+            ]
+
+            # Get predicted class names
+            predicted_classes = [
+                self.class_names[idx] for idx in predicted_indices
+            ]
+
+        return list(zip(predicted_classes, confidences))</code></pre>
+</details>
+<div class="desc"></div>
+<h3>Methods</h3>
+<dl>
+<dt id="app.models.recognitionDLM.ImagePredictor.predict_batch"><code class="name flex">
+<span>def <span class="ident">predict_batch</span></span>(<span>self, image_paths)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def predict_batch(self, image_paths):
+    # Process multiple images at once
+    batch_tensors = []
+    for path in image_paths:
+        image = Image.open(path).convert(&#39;RGB&#39;)
+        tensor = self.transform(image)
+        batch_tensors.append(tensor)
+
+    batch = torch.stack(batch_tensors).to(self.device)
+
+    with torch.no_grad():
+        outputs = self.model(batch)
+        probabilities = torch.nn.functional.softmax(outputs, dim=1)
+        predicted_indices = torch.argmax(probabilities, dim=1).tolist()
+        confidences = [
+            probabilities[i][pred].item()
+            for i, pred in enumerate(predicted_indices)
+        ]
+
+        # Get predicted class names
+        predicted_classes = [
+            self.class_names[idx] for idx in predicted_indices
+        ]
+
+    return list(zip(predicted_classes, confidences))</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="app.models.recognitionDLM.ImagePredictor.predict_image"><code class="name flex">
+<span>def <span class="ident">predict_image</span></span>(<span>self, image_path)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def predict_image(self, image_path):
+    # Load and preprocess the image
+    image = Image.open(image_path).convert(&#39;RGB&#39;)
+    image_tensor = self.transform(image).unsqueeze(
+        0
+    )  # Add batch dimension
+    image_tensor = image_tensor.to(self.device)
+
+    # Make prediction
+    with torch.no_grad():
+        outputs = self.model(image_tensor)
+        probabilities = torch.nn.functional.softmax(outputs, dim=1)
+        predicted_class_idx = torch.argmax(probabilities, dim=1).item()
+        confidence = probabilities[0][predicted_class_idx].item()
+
+        # Get all probabilities as a list
+        all_probs = probabilities[0].cpu().numpy()
+
+        # Get predicted class name
+        predicted_class_name = self.class_names[predicted_class_idx]
+
+        # Create a list of (class_name, probability) tuples
+        class_probabilities = [
+            (class_name, float(prob))
+            for class_name, prob in zip(self.class_names, all_probs)
+        ]
+        # Sort by probability in descending order
+        class_probabilities.sort(key=lambda x: x[1], reverse=True)
+    return {
+        &#39;predicted_class&#39;: predicted_class_name,
+        &#39;confidence&#39;: float(confidence),
+        &#39;all_predictions&#39;: class_probabilities,
+    }</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="app.models" href="index.html">app.models</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="app.models.recognitionDLM.preprocess" href="#app.models.recognitionDLM.preprocess">preprocess</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="app.models.recognitionDLM.Autoencoder" href="#app.models.recognitionDLM.Autoencoder">Autoencoder</a></code></h4>
+<ul class="">
+<li><code><a title="app.models.recognitionDLM.Autoencoder.forward" href="#app.models.recognitionDLM.Autoencoder.forward">forward</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="app.models.recognitionDLM.Classifier" href="#app.models.recognitionDLM.Classifier">Classifier</a></code></h4>
+<ul class="">
+<li><code><a title="app.models.recognitionDLM.Classifier.forward" href="#app.models.recognitionDLM.Classifier.forward">forward</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="app.models.recognitionDLM.ImagePredictor" href="#app.models.recognitionDLM.ImagePredictor">ImagePredictor</a></code></h4>
+<ul class="">
+<li><code><a title="app.models.recognitionDLM.ImagePredictor.predict_batch" href="#app.models.recognitionDLM.ImagePredictor.predict_batch">predict_batch</a></code></li>
+<li><code><a title="app.models.recognitionDLM.ImagePredictor.predict_image" href="#app.models.recognitionDLM.ImagePredictor.predict_image">predict_image</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.5</a>.</p>
+</footer>
+</body>
+</html>

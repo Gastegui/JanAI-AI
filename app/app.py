@@ -1,4 +1,6 @@
-"""Main model serving API module."""
+"""
+Main super module for serving API with AI models.
+"""
 import os
 import random
 from base64 import decodebytes
