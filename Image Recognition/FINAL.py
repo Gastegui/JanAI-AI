@@ -91,19 +91,7 @@ try:
             self.block2 = ResidualEncoderBlock(64, 128)
             self.pool2 = nn.MaxPool2d(max_pool_kernel)
             self.block3 = ResidualEncoderBlock(128, 256)
-            self.pool3 = nn.MaxPool2d(max_pool_kernel)
-            self.block4 = ResidualEncoderBlock(256, 512)
         
-        def forward(self, x):
-            x = self.block1(x)
-            x = self.pool1(x)
-            x = self.block2(x)
-            x = self.pool2(x)
-            x = self.block3(x)
-            x = self.pool3(x)
-            x = self.block4(x)
-            return x
-
     class ResidualDecoderBlock(nn.Module):
         def __init__(self, in_channels, out_channels):
             super(ResidualDecoderBlock, self).__init__()
@@ -115,11 +103,11 @@ try:
             self.relu2 = nn.ReLU()
             self.dropout2 = nn.Dropout(p=dropout)
             self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
-            # Ajuste para las dimensiones en caso de que cambien (opcional)
+
             self.adjust = nn.ConvTranspose2d(in_channels, out_channels, kernel_size=1, stride=convolutional_stride, output_padding=1, bias=False) if in_channels != out_channels else None
 
         def forward(self, x):
-            shortcut = x  # Conexión residual
+            shortcut = x
             if self.adjust:
                 shortcut = self.adjust(x)
 
@@ -132,40 +120,54 @@ try:
             out = self.dropout2(out)
             out = self.conv2(out)
             
-            out = out + shortcut  # Agregar la conexión residual
+            out = out + shortcut
             return out
 
 
     class ResidualDecoder(nn.Module):
         def __init__(self):
             super(ResidualDecoder, self).__init__()
-            self.block1 = ResidualDecoderBlock(512, 256)
+            self.block1 = ResidualDecoderBlock(256, 128)
             self.up1 = nn.Upsample(scale_factor=2, mode="bilinear", align_corners=True)
-            self.block2 = ResidualDecoderBlock(256, 128)
+            self.block2 = ResidualDecoderBlock(128*2, 64) # *2 as it has the concat of the skip connection
             self.up2 = nn.Upsample(scale_factor=2, mode="bilinear", align_corners=True)
-            self.block3 = ResidualDecoderBlock(128, 64)
-            self.up3 = nn.Upsample(scale_factor=2, mode="bilinear", align_corners=True)
-            self.block4 = ResidualDecoderBlock(64, 3)
+            self.block3 = ResidualDecoderBlock(64*2, 3) # same
 
-        def forward(self, x):
-            x = self.block1(x)
-            x = self.up1(x)
-            x = self.block2(x)
-            x = self.up2(x)
-            x = self.block3(x)
-            x = self.up3(x)
-            x = self.block4(x)
-            return x
 
     class ResidualAutoencoder(nn.Module):
         def __init__(self):
             super(ResidualAutoencoder, self).__init__()
             self.encoder = ResidualEncoder()
             self.decoder = ResidualDecoder()
+            self.classi = Classifier()
 
         def forward(self, x):
-            latent = self.encoder(x)
-            reconstructed = self.decoder(latent)
+            skip_connections = [None, None]
+            
+            # ENCODER
+
+            x = self.encoder.block1(x)
+            skip_connections[0] = x
+            x = self.encoder.pool1(x)
+
+            x = self.encoder.block2(x)
+            skip_connections[1] = x
+            x = self.encoder.pool2(x)
+
+            latent = self.encoder.block3(x)
+
+            # DECODER
+
+            x = self.decoder.block1(latent)
+            x = self.decoder.up1(x)
+            
+            x = torch.cat([x, skip_connections[1]], dim=1)
+            x = self.decoder.block2(x)
+            x = self.decoder.up2(x)
+
+            x = torch.cat([x, skip_connections[0]], dim=1)
+            reconstructed = self.decoder.block3(x)
+
             return latent, reconstructed
 
     # # Classifier
@@ -181,31 +183,30 @@ try:
                 param.requires_grad = True
 
             self.flatten = nn.Flatten()
-            self.fc1 = nn.Linear(512*2*2, 512*2)
+            self.fc1 = nn.Linear(256*8*8, 256*8) # 16384 -> 2048
+            self.bn1 = nn.BatchNorm1d(256 * 8)
             self.relu1 = nn.ReLU()
             self.dropout1 = nn.Dropout(p=dropout)
-            self.fc2 = nn.Linear(512*2, 512)
+            self.fc2 = nn.Linear(256*8, 512) # 2048 -> 512
+            self.bn2 = nn.BatchNorm1d(512)
             self.relu2 = nn.ReLU()
             self.dropout2 = nn.Dropout(p=dropout)
             self.fc3 = nn.Linear(512, 101)
-            self.relu3 = nn.ReLU()
-            self.dropout3 = nn.Dropout(p=dropout)
-
         def forward(self, x):
             x = self.encoder(x)
             x = self.flatten(x)
 
             x = self.fc1(x)
+            x = self.bn1(x)
             x = self.relu1(x)
             x = self.dropout1(x)
             
             x = self.fc2(x)
+            x = self.bn2(x)
             x = self.relu2(x)
             x = self.dropout2(x)
 
             x = self.fc3(x)
-            x = self.relu3(x)
-            x = self.dropout3(x)
             return x
 
     # # Loading of the datasets
@@ -368,7 +369,7 @@ try:
                         pbar.update(1)
                         
                 if phase == 'train':
-                    scheduler.step()
+                    scheduler.step(epoch_loss)
 
                 epoch_loss = running_loss / len(dataloaders[phase].dataset)
                 epoch_acc = running_corrects.double() / len(dataloaders[phase].dataset)
@@ -407,8 +408,8 @@ try:
 
     
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.AdamW(model.parameters(), lr=classification_learning_rate)
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.01)
+    optimizer = optim.AdamW(model.parameters(), lr=classification_learning_rate, weight_decay=0.01)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=3)
 
     
     model = train_model(model, criterion, optimizer, scheduler, classification_epochs)
@@ -416,3 +417,4 @@ except KeyboardInterrupt:
     print("Interrupted")
 except Exception as e:
     print("Other exception: " + str(e))
+    raise e
