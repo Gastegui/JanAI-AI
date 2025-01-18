@@ -9,8 +9,10 @@ from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from werkzeug.exceptions import BadRequest, InternalServerError
 
-from .exceptions.exceptions import (UnsupportedContentTypeError,
-                                    UserNotFoundError)
+from .exceptions.exceptions import (
+    UnsupportedContentTypeError,
+    UserNotFoundError,
+)
 from .models import calorieLLM, recomendationsLLM
 from .models.recognitionDLM import ImagePredictor
 from .schemas.schemas import RequestLlm, ResponseDlm, ResponseLlm

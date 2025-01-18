@@ -7,8 +7,10 @@ from unittest.mock import MagicMock, mock_open, patch
 import pytest
 
 from app.app import app
-from app.exceptions.exceptions import (UnsupportedContentTypeError,
-                                       UserNotFoundError)
+from app.exceptions.exceptions import (
+    UnsupportedContentTypeError,
+    UserNotFoundError,
+)
 
 
 @pytest.fixture
@@ -27,11 +29,8 @@ def client():
 
 
 # Mock for calorieLLM
-@patch('mysql.connector')
 @patch('app.models.calorieLLM.calculate_calories', return_value=2000)
-def test_process_intake_prediction(
-    mock_calculate_calories, mock_connect, client
-):
+def test_process_intake_prediction(mock_calculate_calories, client):
     """
     Test case for processing the intake prediction.
 
@@ -45,10 +44,6 @@ def test_process_intake_prediction(
         - Calorie prediction in the response.
     """
     payload = {'userID': 0}
-
-    mock_cursor = MagicMock()
-    mock_cursor.configure_mock(**{'fetchone.return_value': []})
-    mock_connect.return_value = {}
 
     response = client.post('/intake_prediction', json=payload)
 

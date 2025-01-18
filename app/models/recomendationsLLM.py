@@ -205,11 +205,11 @@ def chat(data):
         print('User input: ', user_input)
         print('Username: ', username)
 
-        user_food =  get_user_food(username=username, db=db)
+        user_food = get_user_food(username=username, db=db)
         food = get_food(db=db)
         user = get_user(username=username, db=db)
         user_restrictions = get_user_restrictions(username=username, db=db)
-        height =  get_height(username=username, db=db)
+        height = get_height(username=username, db=db)
         weight = get_weight(username=username, db=db)
         age = get_age(username=username, db=db)
         activity_level = get_activity_level(username=username, db=db)
