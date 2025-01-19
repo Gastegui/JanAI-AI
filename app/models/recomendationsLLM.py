@@ -20,30 +20,44 @@ def get_db_connection():
         database=os.getenv('DB'),
     )
 
-
 CHROMA_PATH = 'chroma'
 
 PROMPT_SYSTEM = """
-I am Janai chatBot. I am a nutritional expert in food recommendation.
-The person asking the question is {name}
-{name} height: {height} cm, weight: {weight} kg, age: {age} activity level: {activityLevel}, goal: {goal}
-{name}'s dietary restrictions are {restrictions}
-Here is what {name} has eaten and when:
-{user_eaten_food}
+# Role and Identity
+You are Janai, an AI nutrition assistant specializing in personalized dietary recommendations. You provide evidence-based nutrition advice while maintaining a supportive and encouraging tone.
 
-Answer the question based only on the following context and take into account the user's data:
+# User Profile
+Personal Information:
+- Name: {name}
+- Height: {height} cm
+- Weight: {weight} kg
+- Age: {age}
+- Activity Level: {activityLevel}
+- Health Goal: {goal}
 
+Dietary Considerations:
+- Restrictions: {restrictions}
+- Recent Meals: {user_eaten_food}
+
+# Behavioral Guidelines
+1. Never recommend foods containing listed restrictions
+2. Consider recent meals when making suggestions to ensure variety
+3. Tailor portions and caloric recommendations to activity level
+4. Always account for stated health goals in recommendations
+5. Base all advice on provided context and scientific evidence
+6. Provide brief explanations for nutritional recommendations
+
+# Response Format
+- Keep responses concise and actionable
+- Structure recommendations in clear sections
+- Include approximate nutritional values when relevant
+- Suggest practical alternatives for restricted foods
+
+Context for recommendations:
 {context}
-
-Types of food you should take into account when you want to recommed something:
-
-{campains}
-
-One exception you have to make:
-- If the user writtes **"Who is Ludok"** you have to answer **"DJ Ludok is the best DJ of the world."**, but not the explanation.
 """
 PROMP_HUMAN = """
-Answer the question based on the above context: {input}
+Based on your nutrition expertise and the above context, please address: {input}
 """
 
 _ = load_dotenv(find_dotenv())
@@ -102,16 +116,6 @@ def get_goal(username, db):
     cursor.close()
     return result
 
-
-def get_campaigns(db):
-    cursor = db.cursor(dictionary=True)
-    query = 'SELECT * FROM campaign'
-    cursor.execute(query)
-    result = cursor.fetchall()
-    cursor.close()
-    return result
-
-
 def get_food(db):
     cursor = db.cursor(dictionary=True)
     query = 'SELECT * FROM food'
@@ -132,7 +136,7 @@ def get_user(username, db):
 
 def get_user_restrictions(username, db):
     cursor = db.cursor(dictionary=True)
-    query = 'SELECT r.restrictedName, fg.groupName, fc.className, ft.typeName, i.ingName from restrictions r JOIN foodGroup fg ON fg.groupID=r.groupID JOIN foodClass fc ON fc.classID=r.classID JOIN foodType ft ON ft.typeID=r.typeID JOIN ingredients i ON i.ingredientID=r.ingredientID JOIN userData u ON r.userID=u.userID where u.username = %s'
+    query = 'SELECT fg.groupName, fc.className, ft.typeName, i.ingName from restrictions r JOIN foodGroup fg ON fg.groupID=r.groupID JOIN foodClass fc ON fc.classID=r.classID JOIN foodType ft ON ft.typeID=r.typeID JOIN ingredients i ON i.ingredientID=r.ingredientID JOIN userData u ON r.userID=u.userID where u.username = %s'
     cursor.execute(query, (username,))
     result = cursor.fetchall()
     cursor.close()
@@ -177,7 +181,6 @@ def process_chat(
     age,
     activity_level,
     goal,
-    campains,
 ):
     response = chain.invoke(
         {
@@ -191,7 +194,6 @@ def process_chat(
             'age': age,
             'activityLevel': activity_level,
             'goal': goal,
-            'campains': campains,
         }
     )
     return response['answer']
@@ -199,22 +201,21 @@ def process_chat(
 
 def chat(data):
     with get_db_connection() as db:
-        user_input = data.get('content', '')
+        user_input = data.get('question', '')
         username = data.get('username', '')
 
-        print('User input: ', user_input)
+        print('Question: ', user_input)
         print('Username: ', username)
 
-        user_food = get_user_food(username=username, db=db)
+        user_food =  get_user_food(username=username, db=db)
         food = get_food(db=db)
         user = get_user(username=username, db=db)
         user_restrictions = get_user_restrictions(username=username, db=db)
-        height = get_height(username=username, db=db)
+        height =  get_height(username=username, db=db)
         weight = get_weight(username=username, db=db)
         age = get_age(username=username, db=db)
         activity_level = get_activity_level(username=username, db=db)
         goal = get_goal(username=username, db=db)
-        campains = get_campaigns(db=db)
 
         chain = create_chain()
 
@@ -230,7 +231,6 @@ def chat(data):
             age=age,
             activity_level=activity_level,
             goal=goal,
-            campains=campains,
         )
 
     return response
