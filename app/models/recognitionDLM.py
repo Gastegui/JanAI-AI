@@ -1,5 +1,10 @@
 """
-Module dedicated for the preprocessing and interfacing with DLM Food Recognition model
+Module for preprocessing and interfacing with the DLM Food Recognition model.
+
+This module includes functionalities for preprocessing images, defining and training autoencoder-based models, and predicting food classes using a trained classifier.
+
+Attributes:
+    IMG_SIZE (int): Target size for resizing images.
 """
 import os
 
@@ -11,9 +16,16 @@ from PIL import Image
 IMG_SIZE = 224
 
 
-def preprocess(org_path: str, train: bool):
+def preprocess(org_path: str, train: bool) -> None:
     """
-    Method for preprocessing ...
+    Preprocesses an image for the DLM Food Recognition model by resizing and saving it in the required format.
+
+    Args:
+        org_path (str): Original file path of the image.
+        train (bool): Indicates if the image belongs to the training set or the test set.
+
+    Returns:
+        None
     """
     arr = org_path.split('/')
     dst_start = '/'.join(arr[: arr.index('Datasets') + 1])
@@ -53,13 +65,23 @@ def preprocess(org_path: str, train: bool):
 
 class Autoencoder(nn.Module):
     """
-    Class for ...
+    Class defining an autoencoder architecture for feature extraction.
+
+    Attributes:
+        encoder (torch.nn.Sequential): Encoder part of the autoencoder.
+        decoder (torch.nn.Sequential): Decoder part of the autoencoder.
+
+    Methods:
+        forward(x): Defines the forward pass of the autoencoder.
     """
 
     def __init__(self):
+        """
+        Initializes the Autoencoder with encoder and decoder layers.
+        """
         super(Autoencoder, self).__init__()
 
-        # Autoencoder stuff
+        # Autoencoder parameters
         dropout = 0.3
         convolutional_kernel = 4
 
@@ -70,28 +92,24 @@ class Autoencoder(nn.Module):
             ),
             nn.LazyBatchNorm2d(),
             nn.ReLU(),
-            # nn.MaxPool2d(kernel_size=max_pool_kernel),
             nn.Dropout2d(p=dropout),
             nn.Conv2d(
                 64, 128, kernel_size=convolutional_kernel, stride=2, padding=1
             ),
             nn.LazyBatchNorm2d(),
             nn.ReLU(),
-            # nn.MaxPool2d(kernel_size=max_pool_kernel),
             nn.Dropout2d(p=dropout),
             nn.Conv2d(
                 128, 256, kernel_size=convolutional_kernel, stride=2, padding=1
             ),
             nn.LazyBatchNorm2d(),
             nn.ReLU(),
-            # nn.MaxPool2d(kernel_size=max_pool_kernel),
             nn.Dropout2d(p=dropout),
             nn.Conv2d(
                 256, 512, kernel_size=convolutional_kernel, stride=2, padding=1
             ),
             nn.LazyBatchNorm2d(),
             nn.ReLU(),
-            # nn.MaxPool2d(kernel_size=max_pool_kernel),
             nn.Dropout2d(p=dropout),
         )
 
@@ -119,17 +137,43 @@ class Autoencoder(nn.Module):
                 64, 3, kernel_size=convolutional_kernel, stride=2, padding=1
             ),
             nn.LazyBatchNorm2d(),
-            nn.Sigmoid(),  # Normalización de salida entre 0 y 1
+            nn.Sigmoid(),
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        """
+        Forward pass through the autoencoder.
+
+        Args:
+            x (torch.Tensor): Input tensor.
+
+        Returns:
+            tuple[torch.Tensor, torch.Tensor]: Encoded representation and reconstructed output.
+        """
         encoded = self.encoder(x)
         decoded = self.decoder(encoded)
         return encoded, decoded
 
 
 class Classifier(nn.Module):
-    def __init__(self, encoder):
+    """
+    Class defining a classification model using the encoder part of an autoencoder.
+
+    Attributes:
+        encoder (torch.nn.Sequential): Pre-trained encoder model.
+        fc (torch.nn.Sequential): Fully connected layers for classification.
+
+    Methods:
+        forward(x): Defines the forward pass of the classifier.
+    """
+
+    def __init__(self, encoder: nn.Sequential):
+        """
+        Initializes the Classifier with a pre-trained encoder and fully connected layers.
+
+        Args:
+            encoder (nn.Sequential): Pre-trained encoder model.
+        """
         super(Classifier, self).__init__()
         self.encoder = encoder
         for param in self.encoder.parameters():
@@ -143,21 +187,43 @@ class Classifier(nn.Module):
 
         self.fc = nn.Sequential(
             nn.Flatten(),
-            # nn.Linear(512 * 14 * 14, 512),  # Ajusta según la salida del encoder
-            # nn.ReLU(),
-            nn.Linear(
-                512 * 14 * 14, 101
-            ),  # Supongamos que tienes 101 clases de platos
+            nn.Linear(512 * 14 * 14, 101),  # Assuming 101 food classes
         )
 
-    def forward(self, x):
-        x = self.encoder(x)  # Congela el encoder si ya está preentrenado
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass through the classifier.
+
+        Args:
+            x (torch.Tensor): Input tensor.
+
+        Returns:
+            torch.Tensor: Output tensor with class scores.
+        """
+        x = self.encoder(x)  # Freeze encoder during training
         x = self.fc(x)
         return x
 
 
 class ImagePredictor:
+    """
+    Class for making predictions using the DLM Food Recognition model.
+
+    Attributes:
+        model (Classifier): Trained classifier model.
+        transform (torchvision.transforms.Compose): Preprocessing transforms for input images.
+        device (str): Device to run the model on ('cuda' or 'cpu').
+        class_names (list[str]): List of class names corresponding to model outputs.
+
+    Methods:
+        predict_image(image_path): Predicts the class of a single image.
+        predict_batch(image_paths): Predicts the classes of a batch of images.
+    """
+
     def __init__(self):
+        """
+        Initializes the ImagePredictor with pre-trained weights and transforms.
+        """
         # Initialize a new model instance
         self.encoder = Autoencoder().encoder
 
@@ -294,6 +360,22 @@ class ImagePredictor:
         )
 
     def predict_image(self, image_path):
+        """
+        Predict the class of a single image.
+
+        This method loads an image, applies the necessary transformations, and passes it through
+        the model to predict the class. It returns the predicted class, the confidence score of
+        the prediction, and a list of all class probabilities sorted by descending confidence.
+
+        Args:
+            image_path (str): The file path to the image to be predicted.
+
+        Returns:
+            dict: A dictionary containing:
+                - 'predicted_class': The name of the predicted class.
+                - 'confidence': The confidence score for the predicted class.
+                - 'all_predictions': A list of tuples containing class names and their associated probabilities.
+        """
         # Load and preprocess the image
         image = Image.open(image_path).convert('RGB')
         image_tensor = self.transform(image).unsqueeze(
@@ -328,6 +410,21 @@ class ImagePredictor:
         }
 
     def predict_batch(self, image_paths):
+        """
+        Predict the classes for a batch of images.
+
+        This method processes multiple images in parallel by loading and transforming each image,
+        then passing the batch through the model to predict the classes and confidence scores for
+        each image. The result is a list of tuples, each containing the predicted class and confidence
+        for each image in the batch.
+
+        Args:
+            image_paths (list of str): A list of file paths to the images to be predicted.
+
+        Returns:
+            list of tuples: A list where each tuple contains the predicted class name and the confidence
+            for each image in the batch.
+        """
         # Process multiple images at once
         batch_tensors = []
         for path in image_paths:

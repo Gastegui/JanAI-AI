@@ -1,6 +1,7 @@
 """
-Module for interfacing with Ollama LLM for the purposes of providing chatbot functionality
+Module for interfacing with Ollama LLM for the purposes of providing chatbot functionality.
 """
+
 import os
 
 import mysql.connector
@@ -13,12 +14,19 @@ from langchain_ollama import OllamaEmbeddings, OllamaLLM
 
 
 def get_db_connection():
+    """
+    Establishes a connection to the MySQL database using credentials from environment variables.
+
+    Returns:
+        mysql.connector.connect: A connection object to the MySQL database.
+    """
     return mysql.connector.connect(
         host=os.getenv('HOST'),
         user=os.getenv('USER'),
         password=os.getenv('PASS'),
         database=os.getenv('DB'),
     )
+
 
 CHROMA_PATH = 'chroma'
 
@@ -56,6 +64,7 @@ Dietary Considerations:
 Context for recommendations:
 {context}
 """
+
 PROMP_HUMAN = """
 Based on your nutrition expertise and the above context, please address: {input}
 """
@@ -64,6 +73,16 @@ _ = load_dotenv(find_dotenv())
 
 
 def get_user_food(username, db):
+    """
+    Retrieves the list of foods consumed by the user in the past 7 days.
+
+    Args:
+        username (str): The username of the user.
+        db (mysql.connector.connection): The MySQL database connection object.
+
+    Returns:
+        list: A list of dictionaries containing food names, consumption dates, and meal types.
+    """
     cursor = db.cursor(dictionary=True)
     query = 'SELECT fo.foodName, f.consumptionDate, f.meal FROM foodList f JOIN food fo ON f.foodID=fo.foodID JOIN userData u ON f.userID=u.userID WHERE u.username = %s AND f.consumptionDate >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)'
     cursor.execute(query, (username,))
@@ -73,6 +92,16 @@ def get_user_food(username, db):
 
 
 def get_height(username, db):
+    """
+    Retrieves the user's height from the database.
+
+    Args:
+        username (str): The username of the user.
+        db (mysql.connector.connection): The MySQL database connection object.
+
+    Returns:
+        list: A list containing the user's height.
+    """
     cursor = db.cursor(dictionary=True)
     query = 'SELECT height FROM userData WHERE username = %s'
     cursor.execute(query, (username,))
@@ -82,6 +111,16 @@ def get_height(username, db):
 
 
 def get_weight(username, db):
+    """
+    Retrieves the user's weight from the database.
+
+    Args:
+        username (str): The username of the user.
+        db (mysql.connector.connection): The MySQL database connection object.
+
+    Returns:
+        list: A list containing the user's weight.
+    """
     cursor = db.cursor(dictionary=True)
     query = 'SELECT weight FROM weightgoals w JOIN userData u ON w.userID=u.userID WHERE username = %s'
     cursor.execute(query, (username,))
@@ -91,6 +130,16 @@ def get_weight(username, db):
 
 
 def get_age(username, db):
+    """
+    Retrieves the user's age from the database.
+
+    Args:
+        username (str): The username of the user.
+        db (mysql.connector.connection): The MySQL database connection object.
+
+    Returns:
+        list: A list containing the user's age.
+    """
     cursor = db.cursor(dictionary=True)
     query = 'SELECT age FROM userData WHERE username = %s'
     cursor.execute(query, (username,))
@@ -100,6 +149,16 @@ def get_age(username, db):
 
 
 def get_activity_level(username, db):
+    """
+    Retrieves the user's activity level from the database.
+
+    Args:
+        username (str): The username of the user.
+        db (mysql.connector.connection): The MySQL database connection object.
+
+    Returns:
+        list: A list containing the user's activity level.
+    """
     cursor = db.cursor(dictionary=True)
     query = 'SELECT activityLevel FROM userData WHERE username = %s'
     cursor.execute(query, (username,))
@@ -109,6 +168,16 @@ def get_activity_level(username, db):
 
 
 def get_goal(username, db):
+    """
+    Retrieves the user's health goal from the database.
+
+    Args:
+        username (str): The username of the user.
+        db (mysql.connector.connection): The MySQL database connection object.
+
+    Returns:
+        list: A list containing the user's health goal (e.g., fat loss, muscle gain).
+    """
     cursor = db.cursor(dictionary=True)
     query = 'SELECT objective FROM userData WHERE username = %s'
     cursor.execute(query, (username,))
@@ -116,7 +185,17 @@ def get_goal(username, db):
     cursor.close()
     return result
 
+
 def get_food(db):
+    """
+    Retrieves all food items from the food database.
+
+    Args:
+        db (mysql.connector.connection): The MySQL database connection object.
+
+    Returns:
+        list: A list of all food items in the food database.
+    """
     cursor = db.cursor(dictionary=True)
     query = 'SELECT * FROM food'
     cursor.execute(query)
@@ -126,6 +205,16 @@ def get_food(db):
 
 
 def get_user(username, db):
+    """
+    Retrieves the user's unique username from the database.
+
+    Args:
+        username (str): The username of the user.
+        db (mysql.connector.connection): The MySQL database connection object.
+
+    Returns:
+        list: A list containing the user's unique username.
+    """
     cursor = db.cursor(dictionary=True)
     query = 'SELECT uname FROM userdata where username = %s'
     cursor.execute(query, (username,))
@@ -135,6 +224,16 @@ def get_user(username, db):
 
 
 def get_user_restrictions(username, db):
+    """
+    Retrieves the user's food restrictions based on their profile from the database.
+
+    Args:
+        username (str): The username of the user.
+        db (mysql.connector.connection): The MySQL database connection object.
+
+    Returns:
+        list: A list of restrictions, including food groups, classes, types, and ingredients.
+    """
     cursor = db.cursor(dictionary=True)
     query = 'SELECT fg.groupName, fc.className, ft.typeName, i.ingName from restrictions r JOIN foodGroup fg ON fg.groupID=r.groupID JOIN foodClass fc ON fc.classID=r.classID JOIN foodType ft ON ft.typeID=r.typeID JOIN ingredients i ON i.ingredientID=r.ingredientID JOIN userData u ON r.userID=u.userID where u.username = %s'
     cursor.execute(query, (username,))
@@ -144,11 +243,23 @@ def get_user_restrictions(username, db):
 
 
 def get_embedding_function():
+    """
+    Initializes the embedding function using Ollama embeddings for text processing.
+
+    Returns:
+        OllamaEmbeddings: The embeddings object for use in vectorization and retrieval.
+    """
     embeddings = OllamaEmbeddings(model='nomic-embed-text')
     return embeddings
 
 
 def create_chain():
+    """
+    Creates a retrieval chain combining the embedding function, vector store, and LLM for chat-based nutrition advice.
+
+    Returns:
+        langchain.chains.RetrievalChain: A chain used for processing and generating chatbot responses.
+    """
     embedding_function = get_embedding_function()
     vector_store = Chroma(
         persist_directory=CHROMA_PATH, embedding_function=embedding_function
@@ -182,6 +293,25 @@ def process_chat(
     activity_level,
     goal,
 ):
+    """
+    Processes the user input through the retrieval chain to generate a nutrition-based response.
+
+    Args:
+        chain (langchain.chains.RetrievalChain): The retrieval chain used to generate responses.
+        question (str): The user's nutrition-related question.
+        user_eaten_food (list): List of foods the user has consumed recently.
+        food (list): A list of all available food items in the database.
+        user (str): The user's name.
+        user_restrictions (list): The list of foods the user is restricted from consuming.
+        height (list): The user's height.
+        weight (list): The user's weight.
+        age (list): The user's age.
+        activity_level (list): The user's activity level.
+        goal (list): The user's health goal.
+
+    Returns:
+        str: The response generated by the AI nutrition assistant.
+    """
     response = chain.invoke(
         {
             'user_eaten_food': user_eaten_food,
@@ -200,6 +330,15 @@ def process_chat(
 
 
 def chat(data):
+    """
+    Main function to handle chat interaction. Retrieves necessary data and processes the input through the chain.
+
+    Args:
+        data (dict): A dictionary containing the user's question and username.
+
+    Returns:
+        str: The response generated by the AI nutrition assistant.
+    """
     with get_db_connection() as db:
         user_input = data.get('question', '')
         username = data.get('username', '')
@@ -207,11 +346,11 @@ def chat(data):
         print('Question: ', user_input)
         print('Username: ', username)
 
-        user_food =  get_user_food(username=username, db=db)
+        user_food = get_user_food(username=username, db=db)
         food = get_food(db=db)
         user = get_user(username=username, db=db)
         user_restrictions = get_user_restrictions(username=username, db=db)
-        height =  get_height(username=username, db=db)
+        height = get_height(username=username, db=db)
         weight = get_weight(username=username, db=db)
         age = get_age(username=username, db=db)
         activity_level = get_activity_level(username=username, db=db)

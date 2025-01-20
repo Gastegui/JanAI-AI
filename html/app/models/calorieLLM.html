@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
 <meta name="generator" content="pdoc3 0.11.5">
 <title>app.models.calorieLLM API documentation</title>
-<meta name="description" content="Module for interfacing with Ollama LLM for the purposes of predicting calorie intake">
+<meta name="description" content="Module for interfacing with Ollama LLM for the purposes of predicting calorie intake.
+This module connects to a MySQL database to retrieve user data, …">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
@@ -36,7 +37,10 @@ el.replaceWith(d);
 <h1 class="title">Module <code>app.models.calorieLLM</code></h1>
 </header>
 <section id="section-intro">
-<p>Module for interfacing with Ollama LLM for the purposes of predicting calorie intake</p>
+<p>Module for interfacing with Ollama LLM for the purposes of predicting calorie intake.
+This module connects to a MySQL database to retrieve user data, then uses an LLM model to predict
+calorie intake recommendations based on various user factors such as height, weight, activity level,
+and more.</p>
 </section>
 <section>
 </section>
@@ -54,6 +58,20 @@ el.replaceWith(d);
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def calculate_calories(user_id: int):
+    &#34;&#34;&#34;
+    Calculates daily calorie intake recommendations for a user based on their data.
+
+    This function retrieves the user&#39;s data from the database, invokes the LLM model to
+    calculate the most suitable daily calorie intake using various BMR and TDEE methods,
+    and returns the predicted daily calorie intake.
+
+    Args:
+        user_id (int): The ID of the user for whom to calculate calorie intake.
+
+    Returns:
+        str: The recommended daily calorie intake as a string (e.g., &#34;2000.00&#34;).
+        dict: An error message if the user data is not found.
+    &#34;&#34;&#34;
     with get_db_connection() as db:
         user_data = get_user_data(user_id=user_id, db=db)
         weight_goals = get_weight_data(user_id=user_id, db=db)
@@ -98,7 +116,22 @@ el.replaceWith(d);
         )
     return response[&#39;text&#39;]</code></pre>
 </details>
-<div class="desc"></div>
+<div class="desc"><p>Calculates daily calorie intake recommendations for a user based on their data.</p>
+<p>This function retrieves the user's data from the database, invokes the LLM model to
+calculate the most suitable daily calorie intake using various BMR and TDEE methods,
+and returns the predicted daily calorie intake.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>user_id</code></strong> :&ensp;<code>int</code></dt>
+<dd>The ID of the user for whom to calculate calorie intake.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str</code></dt>
+<dd>The recommended daily calorie intake as a string (e.g., "2000.00").</dd>
+<dt><code>dict</code></dt>
+<dd>An error message if the user data is not found.</dd>
+</dl></div>
 </dd>
 <dt id="app.models.calorieLLM.get_db_connection"><code class="name flex">
 <span>def <span class="ident">get_db_connection</span></span>(<span>)</span>
@@ -109,6 +142,13 @@ el.replaceWith(d);
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_db_connection():
+    &#34;&#34;&#34;
+    Establishes and returns a connection to the MySQL database using environment variables
+    for credentials.
+
+    Returns:
+        mysql.connector.connection_cext.CMySQLConnection: The database connection object.
+    &#34;&#34;&#34;
     return mysql.connector.connect(
         host=os.getenv(&#39;HOST&#39;),
         user=os.getenv(&#39;USER&#39;),
@@ -116,7 +156,13 @@ el.replaceWith(d);
         database=os.getenv(&#39;DB&#39;),
     )</code></pre>
 </details>
-<div class="desc"></div>
+<div class="desc"><p>Establishes and returns a connection to the MySQL database using environment variables
+for credentials.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>mysql.connector.connection_cext.CMySQLConnection</code></dt>
+<dd>The database connection object.</dd>
+</dl></div>
 </dd>
 <dt id="app.models.calorieLLM.get_user_data"><code class="name flex">
 <span>def <span class="ident">get_user_data</span></span>(<span>user_id, db)</span>
@@ -127,6 +173,16 @@ el.replaceWith(d);
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_user_data(user_id, db):
+    &#34;&#34;&#34;
+    Retrieves user data from the database based on the provided user ID.
+
+    Args:
+        user_id (int): The ID of the user whose data is to be fetched.
+        db (mysql.connector.connection_cext.CMySQLConnection): The database connection.
+
+    Returns:
+        dict: A dictionary containing user data, or None if the user is not found.
+    &#34;&#34;&#34;
     cursor = db.cursor(dictionary=True)
     query = &#39;SELECT height, age, waist, neck, hips, gender, activityLevel, objective, bmrMifflin, bmrHarrisBenedict, bmrKatchMcArdle, tdeeMifflin, tdeeHarrisBenedict, tdeeKatchMcArdle, bodyFat, totalWeightLoss, weeklyDeficit, dailyCalorieIntakeMifflin, dailyCalorieIntakeHarrisBenedict, dailyCalorieIntakeKatchMcArdle FROM userData WHERE userID = %s;&#39;
     cursor.execute(query, (user_id,))
@@ -134,7 +190,19 @@ el.replaceWith(d);
     cursor.close()
     return result</code></pre>
 </details>
-<div class="desc"></div>
+<div class="desc"><p>Retrieves user data from the database based on the provided user ID.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>user_id</code></strong> :&ensp;<code>int</code></dt>
+<dd>The ID of the user whose data is to be fetched.</dd>
+<dt><strong><code>db</code></strong> :&ensp;<code>mysql.connector.connection_cext.CMySQLConnection</code></dt>
+<dd>The database connection.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>dict</code></dt>
+<dd>A dictionary containing user data, or None if the user is not found.</dd>
+</dl></div>
 </dd>
 <dt id="app.models.calorieLLM.get_weight_data"><code class="name flex">
 <span>def <span class="ident">get_weight_data</span></span>(<span>user_id, db)</span>
@@ -145,6 +213,16 @@ el.replaceWith(d);
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_weight_data(user_id, db):
+    &#34;&#34;&#34;
+    Retrieves the most recent weight goal data for the specified user from the database.
+
+    Args:
+        user_id (int): The ID of the user whose weight goal data is to be fetched.
+        db (mysql.connector.connection_cext.CMySQLConnection): The database connection.
+
+    Returns:
+        dict: A dictionary containing the most recent weight goal data, or None if no data is found.
+    &#34;&#34;&#34;
     cursor = db.cursor(dictionary=True)
     query = &#39;SELECT * FROM weightGoals WHERE userID = %s ORDER BY registerDate DESC LIMIT 1;&#39;
     cursor.execute(query, (user_id,))
@@ -152,7 +230,19 @@ el.replaceWith(d);
     cursor.close()
     return result</code></pre>
 </details>
-<div class="desc"></div>
+<div class="desc"><p>Retrieves the most recent weight goal data for the specified user from the database.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>user_id</code></strong> :&ensp;<code>int</code></dt>
+<dd>The ID of the user whose weight goal data is to be fetched.</dd>
+<dt><strong><code>db</code></strong> :&ensp;<code>mysql.connector.connection_cext.CMySQLConnection</code></dt>
+<dd>The database connection.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>dict</code></dt>
+<dd>A dictionary containing the most recent weight goal data, or None if no data is found.</dd>
+</dl></div>
 </dd>
 </dl>
 </section>

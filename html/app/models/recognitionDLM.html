@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
 <meta name="generator" content="pdoc3 0.11.5">
 <title>app.models.recognitionDLM API documentation</title>
-<meta name="description" content="Module dedicated for the preprocessing and interfacing with DLM Food Recognition model">
+<meta name="description" content="Module for preprocessing and interfacing with the DLM Food Recognition model …">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
@@ -36,7 +36,13 @@ el.replaceWith(d);
 <h1 class="title">Module <code>app.models.recognitionDLM</code></h1>
 </header>
 <section id="section-intro">
-<p>Module dedicated for the preprocessing and interfacing with DLM Food Recognition model</p>
+<p>Module for preprocessing and interfacing with the DLM Food Recognition model.</p>
+<p>This module includes functionalities for preprocessing images, defining and training autoencoder-based models, and predicting food classes using a trained classifier.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>IMG_SIZE</code></strong> :&ensp;<code>int</code></dt>
+<dd>Target size for resizing images.</dd>
+</dl>
 </section>
 <section>
 </section>
@@ -46,16 +52,23 @@ el.replaceWith(d);
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="app.models.recognitionDLM.preprocess"><code class="name flex">
-<span>def <span class="ident">preprocess</span></span>(<span>org_path: str, train: bool)</span>
+<span>def <span class="ident">preprocess</span></span>(<span>org_path: str, train: bool) ‑> None</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def preprocess(org_path: str, train: bool):
+<pre><code class="python">def preprocess(org_path: str, train: bool) -&gt; None:
     &#34;&#34;&#34;
-    Method for preprocessing ...
+    Preprocesses an image for the DLM Food Recognition model by resizing and saving it in the required format.
+
+    Args:
+        org_path (str): Original file path of the image.
+        train (bool): Indicates if the image belongs to the training set or the test set.
+
+    Returns:
+        None
     &#34;&#34;&#34;
     arr = org_path.split(&#39;/&#39;)
     dst_start = &#39;/&#39;.join(arr[: arr.index(&#39;Datasets&#39;) + 1])
@@ -92,7 +105,16 @@ el.replaceWith(d);
     os.makedirs(&#39;/&#39;.join(dst.split(&#39;/&#39;)[:-1]), exist_ok=True)
     image.save(dst, &#39;JPEG&#39;)</code></pre>
 </details>
-<div class="desc"><p>Method for preprocessing &hellip;</p></div>
+<div class="desc"><p>Preprocesses an image for the DLM Food Recognition model by resizing and saving it in the required format.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>org_path</code></strong> :&ensp;<code>str</code></dt>
+<dd>Original file path of the image.</dd>
+<dt><strong><code>train</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Indicates if the image belongs to the training set or the test set.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>None</p></div>
 </dd>
 </dl>
 </section>
@@ -109,13 +131,23 @@ el.replaceWith(d);
 </summary>
 <pre><code class="python">class Autoencoder(nn.Module):
     &#34;&#34;&#34;
-    Class for ...
+    Class defining an autoencoder architecture for feature extraction.
+
+    Attributes:
+        encoder (torch.nn.Sequential): Encoder part of the autoencoder.
+        decoder (torch.nn.Sequential): Decoder part of the autoencoder.
+
+    Methods:
+        forward(x): Defines the forward pass of the autoencoder.
     &#34;&#34;&#34;
 
     def __init__(self):
+        &#34;&#34;&#34;
+        Initializes the Autoencoder with encoder and decoder layers.
+        &#34;&#34;&#34;
         super(Autoencoder, self).__init__()
 
-        # Autoencoder stuff
+        # Autoencoder parameters
         dropout = 0.3
         convolutional_kernel = 4
 
@@ -126,28 +158,24 @@ el.replaceWith(d);
             ),
             nn.LazyBatchNorm2d(),
             nn.ReLU(),
-            # nn.MaxPool2d(kernel_size=max_pool_kernel),
             nn.Dropout2d(p=dropout),
             nn.Conv2d(
                 64, 128, kernel_size=convolutional_kernel, stride=2, padding=1
             ),
             nn.LazyBatchNorm2d(),
             nn.ReLU(),
-            # nn.MaxPool2d(kernel_size=max_pool_kernel),
             nn.Dropout2d(p=dropout),
             nn.Conv2d(
                 128, 256, kernel_size=convolutional_kernel, stride=2, padding=1
             ),
             nn.LazyBatchNorm2d(),
             nn.ReLU(),
-            # nn.MaxPool2d(kernel_size=max_pool_kernel),
             nn.Dropout2d(p=dropout),
             nn.Conv2d(
                 256, 512, kernel_size=convolutional_kernel, stride=2, padding=1
             ),
             nn.LazyBatchNorm2d(),
             nn.ReLU(),
-            # nn.MaxPool2d(kernel_size=max_pool_kernel),
             nn.Dropout2d(p=dropout),
         )
 
@@ -175,16 +203,34 @@ el.replaceWith(d);
                 64, 3, kernel_size=convolutional_kernel, stride=2, padding=1
             ),
             nn.LazyBatchNorm2d(),
-            nn.Sigmoid(),  # Normalización de salida entre 0 y 1
+            nn.Sigmoid(),
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -&gt; tuple[torch.Tensor, torch.Tensor]:
+        &#34;&#34;&#34;
+        Forward pass through the autoencoder.
+
+        Args:
+            x (torch.Tensor): Input tensor.
+
+        Returns:
+            tuple[torch.Tensor, torch.Tensor]: Encoded representation and reconstructed output.
+        &#34;&#34;&#34;
         encoded = self.encoder(x)
         decoded = self.decoder(encoded)
         return encoded, decoded</code></pre>
 </details>
-<div class="desc"><p>Class for &hellip;</p>
-<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<div class="desc"><p>Class defining an autoencoder architecture for feature extraction.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>encoder</code></strong> :&ensp;<code>torch.nn.Sequential</code></dt>
+<dd>Encoder part of the autoencoder.</dd>
+<dt><strong><code>decoder</code></strong> :&ensp;<code>torch.nn.Sequential</code></dt>
+<dd>Decoder part of the autoencoder.</dd>
+</dl>
+<h2 id="methods">Methods</h2>
+<p>forward(x): Defines the forward pass of the autoencoder.</p>
+<p>Initializes the Autoencoder with encoder and decoder layers.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>torch.nn.modules.module.Module</li>
@@ -192,33 +238,44 @@ el.replaceWith(d);
 <h3>Methods</h3>
 <dl>
 <dt id="app.models.recognitionDLM.Autoencoder.forward"><code class="name flex">
-<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+<span>def <span class="ident">forward</span></span>(<span>self, x: torch.Tensor) ‑> tuple[torch.Tensor, torch.Tensor]</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def forward(self, x):
+<pre><code class="python">def forward(self, x: torch.Tensor) -&gt; tuple[torch.Tensor, torch.Tensor]:
+    &#34;&#34;&#34;
+    Forward pass through the autoencoder.
+
+    Args:
+        x (torch.Tensor): Input tensor.
+
+    Returns:
+        tuple[torch.Tensor, torch.Tensor]: Encoded representation and reconstructed output.
+    &#34;&#34;&#34;
     encoded = self.encoder(x)
     decoded = self.decoder(encoded)
     return encoded, decoded</code></pre>
 </details>
-<div class="desc"><p>Define the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the :class:<code>Module</code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div></div>
+<div class="desc"><p>Forward pass through the autoencoder.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>x</code></strong> :&ensp;<code>torch.Tensor</code></dt>
+<dd>Input tensor.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>tuple[torch.Tensor, torch.Tensor]</code></dt>
+<dd>Encoded representation and reconstructed output.</dd>
+</dl></div>
 </dd>
 </dl>
 </dd>
 <dt id="app.models.recognitionDLM.Classifier"><code class="flex name class">
 <span>class <span class="ident">Classifier</span></span>
-<span>(</span><span>encoder)</span>
+<span>(</span><span>encoder: torch.nn.modules.container.Sequential)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -226,7 +283,24 @@ registered hooks while the latter silently ignores them.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Classifier(nn.Module):
-    def __init__(self, encoder):
+    &#34;&#34;&#34;
+    Class defining a classification model using the encoder part of an autoencoder.
+
+    Attributes:
+        encoder (torch.nn.Sequential): Pre-trained encoder model.
+        fc (torch.nn.Sequential): Fully connected layers for classification.
+
+    Methods:
+        forward(x): Defines the forward pass of the classifier.
+    &#34;&#34;&#34;
+
+    def __init__(self, encoder: nn.Sequential):
+        &#34;&#34;&#34;
+        Initializes the Classifier with a pre-trained encoder and fully connected layers.
+
+        Args:
+            encoder (nn.Sequential): Pre-trained encoder model.
+        &#34;&#34;&#34;
         super(Classifier, self).__init__()
         self.encoder = encoder
         for param in self.encoder.parameters():
@@ -240,46 +314,39 @@ registered hooks while the latter silently ignores them.</p>
 
         self.fc = nn.Sequential(
             nn.Flatten(),
-            # nn.Linear(512 * 14 * 14, 512),  # Ajusta según la salida del encoder
-            # nn.ReLU(),
-            nn.Linear(
-                512 * 14 * 14, 101
-            ),  # Supongamos que tienes 101 clases de platos
+            nn.Linear(512 * 14 * 14, 101),  # Assuming 101 food classes
         )
 
-    def forward(self, x):
-        x = self.encoder(x)  # Congela el encoder si ya está preentrenado
+    def forward(self, x: torch.Tensor) -&gt; torch.Tensor:
+        &#34;&#34;&#34;
+        Forward pass through the classifier.
+
+        Args:
+            x (torch.Tensor): Input tensor.
+
+        Returns:
+            torch.Tensor: Output tensor with class scores.
+        &#34;&#34;&#34;
+        x = self.encoder(x)  # Freeze encoder during training
         x = self.fc(x)
         return x</code></pre>
 </details>
-<div class="desc"><p>Base class for all neural network modules.</p>
-<p>Your models should also subclass this class.</p>
-<p>Modules can also contain other Modules, allowing to nest them in
-a tree structure. You can assign the submodules as regular attributes::</p>
-<pre><code>import torch.nn as nn
-import torch.nn.functional as F
-
-class Model(nn.Module):
-    def __init__(self) -&gt; None:
-        super().__init__()
-        self.conv1 = nn.Conv2d(1, 20, 5)
-        self.conv2 = nn.Conv2d(20, 20, 5)
-
-    def forward(self, x):
-        x = F.relu(self.conv1(x))
-        return F.relu(self.conv2(x))
-</code></pre>
-<p>Submodules assigned in this way will be registered, and will have their
-parameters converted too when you call :meth:<code>to</code>, etc.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>As per the example above, an <code>__init__()</code> call to the parent class
-must be made before assignment on the child.</p>
-</div>
-<p>:ivar training: Boolean represents whether this module is in training or
-evaluation mode.
-:vartype training: bool</p>
-<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<div class="desc"><p>Class defining a classification model using the encoder part of an autoencoder.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>encoder</code></strong> :&ensp;<code>torch.nn.Sequential</code></dt>
+<dd>Pre-trained encoder model.</dd>
+<dt><strong><code>fc</code></strong> :&ensp;<code>torch.nn.Sequential</code></dt>
+<dd>Fully connected layers for classification.</dd>
+</dl>
+<h2 id="methods">Methods</h2>
+<p>forward(x): Defines the forward pass of the classifier.</p>
+<p>Initializes the Classifier with a pre-trained encoder and fully connected layers.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>encoder</code></strong> :&ensp;<code>nn.Sequential</code></dt>
+<dd>Pre-trained encoder model.</dd>
+</dl></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>torch.nn.modules.module.Module</li>
@@ -287,27 +354,38 @@ evaluation mode.
 <h3>Methods</h3>
 <dl>
 <dt id="app.models.recognitionDLM.Classifier.forward"><code class="name flex">
-<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+<span>def <span class="ident">forward</span></span>(<span>self, x: torch.Tensor) ‑> torch.Tensor</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def forward(self, x):
-    x = self.encoder(x)  # Congela el encoder si ya está preentrenado
+<pre><code class="python">def forward(self, x: torch.Tensor) -&gt; torch.Tensor:
+    &#34;&#34;&#34;
+    Forward pass through the classifier.
+
+    Args:
+        x (torch.Tensor): Input tensor.
+
+    Returns:
+        torch.Tensor: Output tensor with class scores.
+    &#34;&#34;&#34;
+    x = self.encoder(x)  # Freeze encoder during training
     x = self.fc(x)
     return x</code></pre>
 </details>
-<div class="desc"><p>Define the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the :class:<code>Module</code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div></div>
+<div class="desc"><p>Forward pass through the classifier.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>x</code></strong> :&ensp;<code>torch.Tensor</code></dt>
+<dd>Input tensor.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>torch.Tensor</code></dt>
+<dd>Output tensor with class scores.</dd>
+</dl></div>
 </dd>
 </dl>
 </dd>
@@ -320,7 +398,24 @@ registered hooks while the latter silently ignores them.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class ImagePredictor:
+    &#34;&#34;&#34;
+    Class for making predictions using the DLM Food Recognition model.
+
+    Attributes:
+        model (Classifier): Trained classifier model.
+        transform (torchvision.transforms.Compose): Preprocessing transforms for input images.
+        device (str): Device to run the model on (&#39;cuda&#39; or &#39;cpu&#39;).
+        class_names (list[str]): List of class names corresponding to model outputs.
+
+    Methods:
+        predict_image(image_path): Predicts the class of a single image.
+        predict_batch(image_paths): Predicts the classes of a batch of images.
+    &#34;&#34;&#34;
+
     def __init__(self):
+        &#34;&#34;&#34;
+        Initializes the ImagePredictor with pre-trained weights and transforms.
+        &#34;&#34;&#34;
         # Initialize a new model instance
         self.encoder = Autoencoder().encoder
 
@@ -457,6 +552,22 @@ registered hooks while the latter silently ignores them.</p>
         )
 
     def predict_image(self, image_path):
+        &#34;&#34;&#34;
+        Predict the class of a single image.
+
+        This method loads an image, applies the necessary transformations, and passes it through
+        the model to predict the class. It returns the predicted class, the confidence score of
+        the prediction, and a list of all class probabilities sorted by descending confidence.
+
+        Args:
+            image_path (str): The file path to the image to be predicted.
+
+        Returns:
+            dict: A dictionary containing:
+                - &#39;predicted_class&#39;: The name of the predicted class.
+                - &#39;confidence&#39;: The confidence score for the predicted class.
+                - &#39;all_predictions&#39;: A list of tuples containing class names and their associated probabilities.
+        &#34;&#34;&#34;
         # Load and preprocess the image
         image = Image.open(image_path).convert(&#39;RGB&#39;)
         image_tensor = self.transform(image).unsqueeze(
@@ -491,6 +602,21 @@ registered hooks while the latter silently ignores them.</p>
         }
 
     def predict_batch(self, image_paths):
+        &#34;&#34;&#34;
+        Predict the classes for a batch of images.
+
+        This method processes multiple images in parallel by loading and transforming each image,
+        then passing the batch through the model to predict the classes and confidence scores for
+        each image. The result is a list of tuples, each containing the predicted class and confidence
+        for each image in the batch.
+
+        Args:
+            image_paths (list of str): A list of file paths to the images to be predicted.
+
+        Returns:
+            list of tuples: A list where each tuple contains the predicted class name and the confidence
+            for each image in the batch.
+        &#34;&#34;&#34;
         # Process multiple images at once
         batch_tensors = []
         for path in image_paths:
@@ -516,7 +642,22 @@ registered hooks while the latter silently ignores them.</p>
 
         return list(zip(predicted_classes, confidences))</code></pre>
 </details>
-<div class="desc"></div>
+<div class="desc"><p>Class for making predictions using the DLM Food Recognition model.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>model</code></strong> :&ensp;<code><a title="app.models.recognitionDLM.Classifier" href="#app.models.recognitionDLM.Classifier">Classifier</a></code></dt>
+<dd>Trained classifier model.</dd>
+<dt><strong><code>transform</code></strong> :&ensp;<code>torchvision.transforms.Compose</code></dt>
+<dd>Preprocessing transforms for input images.</dd>
+<dt><strong><code>device</code></strong> :&ensp;<code>str</code></dt>
+<dd>Device to run the model on ('cuda' or 'cpu').</dd>
+<dt><strong><code>class_names</code></strong> :&ensp;<code>list[str]</code></dt>
+<dd>List of class names corresponding to model outputs.</dd>
+</dl>
+<h2 id="methods">Methods</h2>
+<p>predict_image(image_path): Predicts the class of a single image.
+predict_batch(image_paths): Predicts the classes of a batch of images.</p>
+<p>Initializes the ImagePredictor with pre-trained weights and transforms.</p></div>
 <h3>Methods</h3>
 <dl>
 <dt id="app.models.recognitionDLM.ImagePredictor.predict_batch"><code class="name flex">
@@ -528,6 +669,21 @@ registered hooks while the latter silently ignores them.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def predict_batch(self, image_paths):
+    &#34;&#34;&#34;
+    Predict the classes for a batch of images.
+
+    This method processes multiple images in parallel by loading and transforming each image,
+    then passing the batch through the model to predict the classes and confidence scores for
+    each image. The result is a list of tuples, each containing the predicted class and confidence
+    for each image in the batch.
+
+    Args:
+        image_paths (list of str): A list of file paths to the images to be predicted.
+
+    Returns:
+        list of tuples: A list where each tuple contains the predicted class name and the confidence
+        for each image in the batch.
+    &#34;&#34;&#34;
     # Process multiple images at once
     batch_tensors = []
     for path in image_paths:
@@ -553,7 +709,22 @@ registered hooks while the latter silently ignores them.</p>
 
     return list(zip(predicted_classes, confidences))</code></pre>
 </details>
-<div class="desc"></div>
+<div class="desc"><p>Predict the classes for a batch of images.</p>
+<p>This method processes multiple images in parallel by loading and transforming each image,
+then passing the batch through the model to predict the classes and confidence scores for
+each image. The result is a list of tuples, each containing the predicted class and confidence
+for each image in the batch.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>image_paths</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>A list of file paths to the images to be predicted.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>list</code> of <code>tuples</code></dt>
+<dd>A list where each tuple contains the predicted class name and the confidence</dd>
+</dl>
+<p>for each image in the batch.</p></div>
 </dd>
 <dt id="app.models.recognitionDLM.ImagePredictor.predict_image"><code class="name flex">
 <span>def <span class="ident">predict_image</span></span>(<span>self, image_path)</span>
@@ -564,6 +735,22 @@ registered hooks while the latter silently ignores them.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def predict_image(self, image_path):
+    &#34;&#34;&#34;
+    Predict the class of a single image.
+
+    This method loads an image, applies the necessary transformations, and passes it through
+    the model to predict the class. It returns the predicted class, the confidence score of
+    the prediction, and a list of all class probabilities sorted by descending confidence.
+
+    Args:
+        image_path (str): The file path to the image to be predicted.
+
+    Returns:
+        dict: A dictionary containing:
+            - &#39;predicted_class&#39;: The name of the predicted class.
+            - &#39;confidence&#39;: The confidence score for the predicted class.
+            - &#39;all_predictions&#39;: A list of tuples containing class names and their associated probabilities.
+    &#34;&#34;&#34;
     # Load and preprocess the image
     image = Image.open(image_path).convert(&#39;RGB&#39;)
     image_tensor = self.transform(image).unsqueeze(
@@ -597,7 +784,23 @@ registered hooks while the latter silently ignores them.</p>
         &#39;all_predictions&#39;: class_probabilities,
     }</code></pre>
 </details>
-<div class="desc"></div>
+<div class="desc"><p>Predict the class of a single image.</p>
+<p>This method loads an image, applies the necessary transformations, and passes it through
+the model to predict the class. It returns the predicted class, the confidence score of
+the prediction, and a list of all class probabilities sorted by descending confidence.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>image_path</code></strong> :&ensp;<code>str</code></dt>
+<dd>The file path to the image to be predicted.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>dict</code></dt>
+<dd>A dictionary containing:
+- 'predicted_class': The name of the predicted class.
+- 'confidence': The confidence score for the predicted class.
+- 'all_predictions': A list of tuples containing class names and their associated probabilities.</dd>
+</dl></div>
 </dd>
 </dl>
 </dd>
