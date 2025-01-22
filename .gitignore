@@ -2,5 +2,7 @@ Tutorials/
 Image\ Recognition/Datasets/*
 !Image\ Recognition/Datasets/README.md
 Output/
+Image\ Recognition/models/*
+!Image\ Recognition/models/README.md
 
 token
