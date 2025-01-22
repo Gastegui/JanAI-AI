@@ -3,6 +3,8 @@
 ## Food-101 (5GB)
     cd ~/Downloads && curl -L -o ./food-101.tar.gz http://data.vision.ee.ethz.ch/cvl/food-101.tar.gz && tar -xvf ./food-101.tar.gz && rm ./food-101.tar.gz
 
+### The next ones are not used for anything anymore
+
 ## FooDD (5GB)
     cd ~/Downloads && curl -L -o ./fooDD.zip https://www.kaggle.com/api/v1/datasets/download/rusqi29/food-detection-dataset-for-calorie-measurement && unzip ./fooDD.zip && rm ./fooDD.zip
 
