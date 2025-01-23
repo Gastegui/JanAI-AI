@@ -27,6 +27,7 @@ jobs:
         run: |
           pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu124
           pip3 install -qU "langchain-chroma>=0.1.2"
+          pip3 install langchain_community
 
       - name: Set correct permissions for upload folder
         run: |
